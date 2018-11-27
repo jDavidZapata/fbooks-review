@@ -7,7 +7,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
   <style>
-
     /*
     *, ::after, ::before {
       box-sizing: border-box;
@@ -15,16 +14,14 @@
     body {
       position: relative;
     }
-    */
-
-      
+    */      
   </style>
 
   <!-- Bootstrap CSS -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
     crossorigin="anonymous">
 
-  <title>Python Flask Review App</title>
+  <title>Python Flask Book App</title>
 </head>
 
 <body>
@@ -40,13 +37,19 @@
         <div class="collapse navbar-collapse" id="navbarText">
           <ul class="navbar-nav mr-auto">
             <li class="nav-item active">
-              <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+              <a class="nav-link" href="{{ url_for('hello') }}">Home <span class="sr-only">(current)</span></a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">Search</a>
+              <a class="nav-link" href="{{ url_for('search') }}">Search</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">Log Out</a>
+              <a class="nav-link" href="{{ url_for('register') }}">Register</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('login') }}">Log In</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('logout') }}">Log Out</a>
             </li>
           </ul>
           <span class="navbar-text">
@@ -66,7 +69,46 @@
 
       <div class="row">
         <div class="col-12 col-sm-6 col-lg-8 bg-info">
-          1 of 2
+          <div class="row marketing">
+            <div class="col-lg-4">
+              <h2>Comic</h2>
+              <h4># 1</h4>
+              <p>Donec id elit non mi porta gravida at eget metus. Maecenas faucibus mollis interdum.</p>
+
+              <h4># 2</h4>
+              <p>Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Cras mattis consectetur purus sit amet
+                fermentum.</p>
+
+              <h4># 3 </h4>
+              <p>Maecenas sed diam eget risus varius blandit sit amet non magna.</p>
+            </div>
+
+            <div class="col-lg-4">
+              <h2>Book</h2>
+              <h4># 4 </h4>
+              <p>Donec id elit non mi porta gravida at eget metus. Maecenas faucibus mollis interdum.</p>
+
+              <h4># 5 </h4>
+              <p>Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Cras mattis consectetur purus sit amet
+                fermentum.</p>
+
+              <h4># 6 </h4>
+              <p>Maecenas sed diam eget risus varius blandit sit amet non magna.</p>
+            </div>
+            <div class="col-lg-4">
+              <h2>Anime</h2>
+              <h4># 7 </h4>
+              <p>Donec id elit non mi porta gravida at eget metus. Maecenas faucibus mollis interdum.</p>
+
+              <h4># 8 </h4>
+              <p>Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Cras mattis consectetur purus sit amet
+                fermentum.</p>
+
+              <h4># 9 </h4>
+              <p>Maecenas sed diam eget risus varius blandit sit amet non magna.</p>
+            </div>
+          </div>
+
         </div>
         <div class="col-6 col-lg-4 bg-danger">
           <form class="form-inline">
@@ -78,7 +120,7 @@
             <button type="submit" class="btn btn-primary mb-2">Search For ... Title</button>
           </form>
           <form class="form-inline">
-            
+
             <div class="form-group mx-sm-3 mb-2">
               <label for="bookauthor" class="sr-only">Author</label>
               <input type="text" class="form-control" id="author" placeholder="Enter Book Author">
@@ -86,7 +128,7 @@
             <button type="submit" class="btn btn-primary mb-2">Search For ... Author</button>
           </form>
           <form class="form-inline">
-            
+
             <div class="form-group mx-sm-3 mb-2">
               <label for="bookisbn" class="sr-only">Isbn #</label>
               <input type="text" class="form-control" id="isbn" placeholder="Enter Book Isbn #">
