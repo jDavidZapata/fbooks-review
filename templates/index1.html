@@ -21,7 +21,7 @@
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
     crossorigin="anonymous">
 
-  <title>Python Flask Book App</title>
+  <title>Python Flask Review App {% block title %}title{% endblock %}</title>
 </head>
 
 <body>
@@ -29,7 +29,7 @@
     <div class="header">
 
       <nav class="navbar navbar-expand-lg navbar-dark fixed-top bg-dark">
-        <a class="navbar-brand" href="#">Comic-Book-Anime</a>
+        <a class="navbar-brand" href="#">{% block header %}Comic-Book-Anime{% endblock %}</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText"
           aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
@@ -42,29 +42,39 @@
             <li class="nav-item">
               <a class="nav-link" href="{{ url_for('search') }}">Search</a>
             </li>
+            {% if g.user %}
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('logout') }}">Log Out</a>
+            </li>
+            {% else %}
             <li class="nav-item">
               <a class="nav-link" href="{{ url_for('register') }}">Register</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="{{ url_for('login') }}">Log In</a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('logout') }}">Log Out</a>
-            </li>
+            {% endif %}
           </ul>
           <span class="navbar-text">
+            {% if g.user %}
+            {{ Welcome (g.user['name']).upper() }}
+            {% endif %}
             Always Be Amazing!!!
+            
           </span>
         </div>
       </nav>
     </div>
     <div class="jumbotron">
       <h1>Comic-Book-Anime</h1>
-      <h2>Book Review App</h2>
+      <h2>Review App</h2>
       <p class="lead">Pick A Book</p>
+      {% if not g.user %}
       <p><a class="btn btn-lg btn-danger" href="{{ url_for('register') }}" role="button">Sign up NOW!</a>
       </p>
+      {% endif %}
     </div>
+    {% block content %}{% endblock %}
     <div class="container">
 
       <div class="row">
