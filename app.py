@@ -74,21 +74,6 @@ def login():
 '''
 
 ''' 
-@app.route('/login', methods=['POST'])
-def login():
- 
-    POST_USERNAME = str(request.form['name'])
-    POST_PASSWORD = str(request.form['password'])
- 
-    Session = sessionmaker(bind=engine)
-    s = Session()
-    query = s.query(User).filter(User.name.in_([POST_USERNAME]), User.password.in_([POST_PASSWORD]) )
-    result = query.first()
-    if result:
-        session['logged_in'] = True
-    else:
-        flash('wrong password!')
-    return home()
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -126,6 +111,16 @@ def login():
 def logout():
     session['logged_in'] = False
     return home()
+
+
+
+@app.route('/search', methods=['GET', 'POST'])
+def search():
+    return render_template('index1.html')
+  
+
+
+
  
 if __name__ == "__main__":
     app.secret_key = os.urandom(12)
