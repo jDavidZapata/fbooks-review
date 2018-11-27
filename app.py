@@ -110,6 +110,7 @@ def login():
 
     name = request.form.get("name")
     password = request.form.get("password")
+    
     user = db.execute("SELECT * FROM users WHERE name = :name AND password = :password", {"name": name, "password": password}).fetchone()
     if user is None:
         flash('wrong!!!')
