@@ -96,6 +96,8 @@
             </li>
             {% if g.user %}
             <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('create') }}">Create</a>
+            <li class="nav-item">
               <a class="nav-link" href="{{ url_for('logout') }}">Log Out</a>
             </li>
             {% else %}
@@ -169,7 +171,7 @@
 
     {% block content2 %}{% endblock %}
 
-    <footer class="footer">
+    <footer class="footer bg-warning">
       <p>&copy; Phyrekx, Inc ... JDavidZ 2018</p>
       <p><a class="bg-dark" href="#">Belmar, nj</a></p>
     </footer>

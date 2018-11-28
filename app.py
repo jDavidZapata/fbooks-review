@@ -205,6 +205,27 @@ def book():
         return render_template("bookpage.html", error=error)
   
     
+@app.route('/create', methods=['GET', 'POST'])
+def create():
+    error = None
+
+    """Check to see if User is in session."""
+
+    user_id = session.get('user_id')
+
+    if (not 'user_id' in session):
+        g.user = None
+
+        return render_template("reviews/create.html", error=error)
+    else:
+        g.user = db.execute(    
+            'SELECT * FROM users WHERE id = :id', {"id": user_id,}
+        ).fetchone()
+
+        return render_template("reviews/create.html", error=error)
+  
+    
+ 
  
 if __name__ == "__main__":
     app.secret_key = os.urandom(12)
