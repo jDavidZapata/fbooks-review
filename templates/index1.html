@@ -7,14 +7,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
   <style>
-    /*
+    
     *, ::after, ::before {
       box-sizing: border-box;
     }
     body {
       position: relative;
     }
-    */      
+    
+
+    .form {
+      background-color: rgb(255, 251, 0);
+      justify-items: center;
+    }
+
+
   </style>
 
   <!-- Bootstrap CSS -->
@@ -37,7 +44,7 @@
         <div class="collapse navbar-collapse" id="navbarText">
           <ul class="navbar-nav mr-auto">
             <li class="nav-item active">
-              <a class="nav-link" href="{{ url_for('hello') }}">Home <span class="sr-only">(current)</span></a>
+              <a class="nav-link" href="{{ url_for('index') }}">Home <span class="sr-only">(current)</span></a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="{{ url_for('search') }}">Search</a>
@@ -57,7 +64,9 @@
           </ul>
           <span class="navbar-text">
             {% if g.user %}
-            {{ Welcome (g.user['name']).upper() }}
+            Welcome
+            {{ (g.user['name']).upper() }}
+            !!!
             {% endif %}
             Always Be Amazing!!!
 
@@ -163,8 +172,7 @@
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
     crossorigin="anonymous"></script>
   <script>
-   document.addEventListener("DOMContentLoaded", (function(){HTMLFormElement.reset()})
-    
+      
   </script>
 </body>
 

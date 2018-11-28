@@ -5,11 +5,13 @@
 {% endblock %}
 
 {% block content %}
+<div class="form">
 <form method="post">
-  <div class="form-row align-items-center">
+  <div class="form-row justify-content-center">
     <div class="col-auto">
       <label class="sr-only" for="inlineFormInput">Name</label>
-      <input type="text" name="name" class="form-control mb-2" id="inlineFormInput" placeholder="Your Name" autofocus required >
+      <input type="text" name="name" class="form-control mb-2" id="inlineFormInput" placeholder="Your Name" autofocus
+        required>
     </div>
     <div class="col-auto">
       <label class="sr-only" for="inlineFormInputGroup">Password</label>
@@ -17,7 +19,8 @@
         <div class="input-group-prepend">
           <div class="input-group-text">*</div>
         </div>
-        <input type="password" name="password" class="form-control" id="inlineFormInputGroup" placeholder="Your Password" required>
+        <input type="password" name="password" class="form-control" id="inlineFormInputGroup" placeholder="Your Password"
+          required>
       </div>
     </div>
     <div class="col-auto">
@@ -33,4 +36,5 @@
     </div>
   </div>
 </form>
+</div>
 {% endblock %}

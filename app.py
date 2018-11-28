@@ -25,98 +25,164 @@ db = scoped_session(sessionmaker(bind=engine))
 
 
 
-@app.route('/')
-def hello():
-    return render_template('index.html')
- 
-@app.route('/home')
-def home():
+@app.route("/", methods=["GET", "POST"])
+def index():
     
-    if not session.get('logged_in'):
-        return render_template('auth/login.html')
-    else:
-        return "Hello Boss!  <a href='/logout'>Logout</a>"
-
-
-@app.route('/register' , methods=['GET','POST'])
-def register():
-    if request.method == 'GET':
-        return render_template('auth/register.html')
-    #user = (request.form['name'], request.form['password'], request.form['email'])
-    name = request.form['name']
-    password = request.form['password']
-    email = request.form['email']
-
-    db.execute("INSERT INTO users (name, password, email) VALUES (:name, :password, :email)",
-                   {"name": name, "password": password, "email": email,})
-    
-    #db.session.add(user)
-    db.commit()
-
-    flash('User successfully registered')
-    return redirect(url_for('login'))
-
-''' 
-@app.route('/login',methods=['GET','POST'])
-def login():
-    if request.method == 'GET':
-        return render_template('auth/login.html')
-    name = request.form['name']
-    password = request.form['password']
-    registered_user = User.query.filter_by(name=name,password=password).first()
-    
-    if registered_user is None:
-        flash('Username or Password is invalid' , 'error')
-        return redirect(url_for('login'))
-    login_user(registered_user)
-    flash('Logged in successfully')
-    return redirect(request.args.get('next') or url_for('index'))
-'''
-
-''' 
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
     error = None
+
+    """Check to see if User is in session."""
+
+    user_id = session.get('user_id')
+
+    if (not 'user_id' in session):
+        g.user = None
+
+        return render_template("index1.html", error=error)
+    else:
+        g.user = db.execute(    
+            'SELECT * FROM users WHERE id = :id', {"id": user_id,}
+        ).fetchone()
+
+        return render_template("index1.html", error=error)
+        
+
+
+@app.route('/register', methods=('GET', 'POST'))
+def register():
+    """Register a new user.
+        Check if the user is in session.
+        Validates that the name and email are not already taken. 
+        Redirect to index page.
+        #Hashes the password for security.
+    """
+    error = None
+
+    user_id = session.get('user_id')
+
+    if ('user_id' in session):
+
+        g.user = db.execute(    
+            'SELECT * FROM users WHERE id = :id', {"id": user_id,}
+        ).fetchone()
+        return render_template("index1.html")
+         
+
+    if request.method == 'POST':
+
+        name = request.form['name']
+        password = request.form['password']
+        email = request.form['email']
+        
+        error = None
+
+        if not name:
+            error = 'Name is required.'
+        elif not password:
+            error = 'Password is required.'
+        
+
+        user = db.execute("SELECT * FROM users WHERE name = :name AND email = :email", {"name": name, "email": email}).fetchone()
+        if user is not None:
+            error = 'User {0} is already registered.'.format(name)
+
+
+        if error is None:
+            """If the name is available, store it in the database and go to the login page"""
+
+            db.execute("INSERT INTO users (name, password, email) VALUES (:name, :password, :email)",
+                   {"name": name, "password": password, "email": email})
+            db.commit()
+            
+            user = db.execute("SELECT * FROM users WHERE name = :name AND email = :email", {"name": name, "email": email}).fetchone()
+
+            """Store the user id in a new session and return to the index"""
+            
+            session.clear()
+            session['user_id'] = user['id']
+            g.user = db.execute(    
+            'SELECT * FROM users WHERE id = :id', {"id": user_id,}
+        ).fetchone()
+            return redirect(url_for('index'))
+
+        flash(error)
+
+    return render_template('auth/register.html', error=error)
+
+
+
+
+
+
+@app.route('/login', methods=('GET', 'POST'))
+def login():
+    """Log in a registered user by adding the user id to the session."""
+    
+    error = None 
+
+    user_id = session.get('user_id')
+    if ('user_id' in session):
+        g.user = db.execute(    
+            'SELECT * FROM users WHERE id = :id', {"id": user_id,}
+        ).fetchone()
+        return render_template("index1.html", error=error)
+    
     
     if request.method == 'POST':
-        if request.form['name'] != 'admin' or request.form['password'] != 'admin':
-            error = 'Invalid Credentials. Please try again.'
-        else:
-            return redirect(url_for('home'))
-    return render_template('login.html', error=error)    
-''' 
+        name = request.form['name']
+        password = request.form['password']
+        
+        error = None
+        user = db.execute("SELECT * FROM users WHERE name = :name AND password = :password", {"name": name, "password": password}).fetchone()
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
 
-    if request.method == 'GET':
-        return render_template('auth/login.html')
+        if user is None:
+            error = 'Incorrect Name or Password.'
+        
 
-    name = request.form.get("name")
-    password = request.form.get("password")
+        if error is None:
+            """Store the user id in a new session and return to the index."""
+            session.clear()
+            session['user_id'] = user['id']
+            g.user = db.execute(    
+            'SELECT * FROM users WHERE id = :id', {"id": user_id,}
+        ).fetchone()
+            return redirect(url_for('index'))
+
+        flash(error)
+        
+    return render_template('auth/login.html', error=error)
     
-    user = db.execute("SELECT * FROM users WHERE name = :name AND password = :password", {"name": name, "password": password}).fetchone()
-    if user is None:
-        flash('wrong!!!')
-        return render_template("auth/login.html", message="Invalid Credentials. Please try again..")
-    else:
-        session['logged_in'] = True
-    return redirect(url_for('home'))
 
 
 
 
-@app.route("/logout")
+@app.route('/logout')
 def logout():
-    session['logged_in'] = False
-    return home()
+    """Clear the current session, including the stored user id."""
+    session.clear()
+    g.user = None
+    return redirect(url_for('login'))
 
 
 
 @app.route('/search', methods=['GET', 'POST'])
 def search():
-    return render_template('index1.html')
+    error = None
+
+    """Check to see if User is in session."""
+
+    user_id = session.get('user_id')
+
+    if (not 'user_id' in session):
+        g.user = None
+
+        return render_template("index1.html", error=error)
+    else:
+        g.user = db.execute(    
+            'SELECT * FROM users WHERE id = :id', {"id": user_id,}
+        ).fetchone()
+
+        return render_template("index1.html", error=error)
   
 
 

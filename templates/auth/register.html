@@ -5,31 +5,33 @@
 {% endblock %}
 
 {% block content %}
-
-<form method="post">
-  <div class="form-row align-items-center">
-    <div class="col-auto">
-      <label class="sr-only" for="inlineFormInput">Name</label>
-      <input type="text" name="name" class="form-control mb-2" id="inlineFormInput" placeholder="Your Name" autofocus
-        required>
-    </div>
-    <div class="col-auto">
-      <label class="sr-only" for="inlineFormInputGroup">Password</label>
-      <div class="input-group mb-2">
-        <div class="input-group-prepend">
-          <div class="input-group-text">*</div>
-        </div>
-        <input type="password" name="password" class="form-control" id="inlineFormInputGroup" placeholder="Your Password"
+<div class="form">
+  <form method="post">
+    <div class="form-row justify-content-center align-items-center">
+      <div class="col-auto">
+        <label class="sr-only" for="inlineFormInput">Name</label>
+        <input type="text" name="name" class="form-control mb-2" id="inlineFormInput" placeholder="Your Name" autofocus
           required>
       </div>
+      <div class="col-auto">
+        <label class="sr-only" for="inlineFormInputGroup">Password</label>
+        <div class="input-group mb-2">
+          <div class="input-group-prepend">
+            <div class="input-group-text">*</div>
+          </div>
+          <input type="password" name="password" class="form-control" id="inlineFormInputGroup" placeholder="Your Password"
+            required>
+        </div>
+      </div>
+      <div class="col-auto">
+        <label class="sr-only" for="inlineFormInput">Email</label>
+        <input type="text" name="email" class="form-control mb-2" id="inlineFormInput" placeholder="Your Email"
+          required>
+      </div>
+      <div class="col-auto">
+        <button type="submit" class="btn btn-primary mb-2">Submit</button>
+      </div>
     </div>
-    <div class="col-auto">
-      <label class="sr-only" for="inlineFormInput">Email</label>
-      <input type="text" name="email" class="form-control mb-2" id="inlineFormInput" placeholder="Your Email" required>
-    </div>    
-    <div class="col-auto">
-      <button type="submit" class="btn btn-primary mb-2">Submit</button>
-    </div>
-  </div>
-</form>
+  </form>
+</div>
 {% endblock %}
