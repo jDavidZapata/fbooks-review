@@ -176,13 +176,13 @@ def search():
     if (not 'user_id' in session):
         g.user = None
 
-        return render_template("index1.html", error=error)
+        return render_template("search.html", error=error)
     else:
         g.user = db.execute(    
             'SELECT * FROM users WHERE id = :id', {"id": user_id,}
         ).fetchone()
 
-        return render_template("index1.html", error=error)
+        return render_template("search.html", error=error)
   
 
 
