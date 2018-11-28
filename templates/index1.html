@@ -13,14 +13,31 @@
     }
     body {
       position: relative;
+      
     }
     
-
     .form {
       background-color: rgb(255, 251, 0);
       justify-items: center;
     }
+    
+    .htitle {      
+      margin-top: 50px;
+    }
 
+    .content {
+      
+      padding-top: 30px;
+    }
+
+    .left {
+      padding: 30px;
+    }
+
+    .right {
+      padding: 30px;
+    }
+  
 
   </style>
 
@@ -36,7 +53,7 @@
     <div class="header">
 
       <nav class="navbar navbar-expand-lg navbar-dark fixed-top bg-dark">
-        <a class="navbar-brand" href="#">{% block header %}Comic-Book-Anime{% endblock %}</a>
+        <a class="navbar-brand" href="#"><h3>{% block header %}Comic-Book-Anime{% endblock %}</h3></a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText"
           aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
@@ -74,7 +91,7 @@
         </div>
       </nav>
     </div>
-    <div class="jumbotron">
+    <div class="jumbotron htitle">
       <h1>Comic-Book-Anime</h1>
       <h2>Review App</h2>
       <p class="lead">Pick A Book</p>
@@ -84,11 +101,11 @@
       {% endif %}
     </div>
     {% block content %}{% endblock %}
-    <div class="container">
+    <div class="container content">
 
-      <div class="row">
-        <div class="col-12 col-sm-6 col-lg-8 bg-info">
-          <div class="row marketing">
+      <div class="row rcontent">
+        <div class="col-12 col-sm-6 col-lg-8 bg-info left">
+          <div class="row">
             <div class="col-lg-4">
               <h2>Comic</h2>
               <h4># 1</h4>
@@ -129,16 +146,16 @@
           </div>
 
         </div>
-        <div class="col-6 col-lg-4 bg-danger">
-          <form class="form-inline">
+        <div class="col-6 col-lg-4 bg-danger right">
+          <form class="form-inline justify-content-center">
 
             <div class="form-group mx-sm-3 mb-2">
               <label for="booktitle" class="sr-only">Title</label>
-              <input type="text" class="form-control" id="title" placeholder="Enter Book Title">
+              <input type="text" name="title" class="form-control" id="title" placeholder="Enter Book Title">
             </div>
             <button type="submit" class="btn btn-primary mb-2">Search For ... Title</button>
           </form>
-          <form class="form-inline">
+          <form class="form-inline justify-content-center">
 
             <div class="form-group mx-sm-3 mb-2">
               <label for="bookauthor" class="sr-only">Author</label>
@@ -146,7 +163,7 @@
             </div>
             <button type="submit" class="btn btn-primary mb-2">Search For ... Author</button>
           </form>
-          <form class="form-inline">
+          <form class="form-inline justify-content-center">
 
             <div class="form-group mx-sm-3 mb-2">
               <label for="bookisbn" class="sr-only">Isbn #</label>
