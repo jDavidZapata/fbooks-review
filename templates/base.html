@@ -36,6 +36,30 @@
     .search {
       color: khaki
     }
+
+    a {
+      text-decoration: none;
+    }
+
+    a:link {
+    color: red;
+    }
+
+
+    /* visited link */
+    a:visited {
+        color: white;
+    }
+
+    /* mouse over link */
+    a:hover {
+        color: red;
+    }
+
+    /* selected link */
+    a:active {
+        color: #fffb00;
+    }
   
 
   </style>
@@ -68,8 +92,8 @@
               <a class="nav-link" href="{{ url_for('search') }}">Search</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('book') }}">Book</a>
-              </li>
+              <a class="nav-link" href="{{ url_for('book') }}">Book</a>
+            </li>
             {% if g.user %}
             <li class="nav-item">
               <a class="nav-link" href="{{ url_for('logout') }}">Log Out</a>
@@ -107,7 +131,7 @@
 
 
     {% block content %}{% endblock %}
-    
+
     <div class="container content">
       <div class="row">
 
@@ -142,6 +166,9 @@
         </div>
       </div>
     </div>
+
+    {% block content2 %}{% endblock %}
+
     <footer class="footer">
       <p>&copy; Phyrekx, Inc ... JDavidZ 2018</p>
     </footer>
