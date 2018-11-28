@@ -37,13 +37,13 @@ def index():
     if (not 'user_id' in session):
         g.user = None
 
-        return render_template("index1.html", error=error)
+        return render_template("index.html", error=error)
     else:
         g.user = db.execute(    
             'SELECT * FROM users WHERE id = :id', {"id": user_id,}
         ).fetchone()
 
-        return render_template("index1.html", error=error)
+        return render_template("index.html", error=error)
         
 
 
@@ -64,7 +64,7 @@ def register():
         g.user = db.execute(    
             'SELECT * FROM users WHERE id = :id', {"id": user_id,}
         ).fetchone()
-        return render_template("index1.html")
+        return render_template("index.html")
          
 
     if request.method == 'POST':
@@ -124,7 +124,7 @@ def login():
         g.user = db.execute(    
             'SELECT * FROM users WHERE id = :id', {"id": user_id,}
         ).fetchone()
-        return render_template("index1.html", error=error)
+        return render_template("index.html", error=error)
     
     
     if request.method == 'POST':
@@ -185,7 +185,9 @@ def search():
         return render_template("search.html", error=error)
   
 
-
+@app.route('/book', methods=['GET', 'POST'])
+def book():
+    return render_template("bookpage.html")
 
  
 if __name__ == "__main__":
