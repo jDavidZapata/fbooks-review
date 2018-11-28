@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h3>{% block title %}Book{% endblock %}</h3>
+{% endblock %}
+
+{% block body %}
+
+
+<div class="col-12 col-sm-6 col-lg-8 bg-info left">
+    <h2>Results For Book Title/Isbn#:</h2>
+    <div class="row">
+        <div class="col-lg-5">
+            <h3>Book Tile: </h3>
+            <h4><a href="#">Title of Book</a>
+            </h4>
+
+            <h3>Book Author:</h3>
+            <h4><a href="#">Author of Book</a>
+            </h4>
+
+            <h3>Isbn #:</h3>
+            <h4><a href="#">Isbn # of Book</a>
+            </h4>
+        </div>
+
+        <div class="col-lg-7">
+            <h3>Reviews From App:</h3>
+            <h4><a href="#"># of Reviews if any</a>
+            </h4>
+
+            <h3>Review Score From API:</h3>
+            <h4><a href="#">Score From 1 to 5 For Book</a>
+            </h4>
+
+            <h3># Of Reviews From API</h3>
+            <h4><a href="#"># Of Reviews</a>
+            </h4>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
