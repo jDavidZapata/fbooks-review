@@ -1,73 +1,48 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'index1.html' %}
 
-<head>
-    <title>Python Flask Review App</title>
+{% block header %}
+<h3>{% block title %}Home{% endblock %}</h3>
+{% endblock %}
 
+{% block content %}
 
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
-        crossorigin="anonymous">
+<div class="row">
+    <div class="col-lg-4">
+        <h2>Comic</h2>
+        <h4># 1</h4>
+        <p>Donec id elit non mi porta gravida at eget metus. Maecenas faucibus mollis interdum.</p>
 
-    <link href="http://getbootstrap.com/examples/jumbotron-narrow/jumbotron-narrow.css" rel="stylesheet">
+        <h4># 2</h4>
+        <p>Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Cras mattis consectetur purus sit amet
+            fermentum.</p>
 
-
-</head>
-
-<body>
-
-    <div class="container">
-        <div class="header">
-            <nav>
-                <ul class="nav nav-pills pull-right">
-                    <li role="presentation" class="active"><a href="{{ url_for('home') }}">Home</a>
-                    </li>
-                    <li role="presentation"><a href="{{ url_for('login') }}">Sign In</a>
-                    </li>
-                    <li role="presentation"><a href="{{ url_for('register') }}">Sign Up</a>
-                    </li>
-                </ul>
-            </nav>
-            <h3 class="text-muted">Python Flask App</h3>
-        </div>
-
-        <div class="jumbotron">
-            <h1>Book Reviews App</h1>
-            <p class="lead"></p>
-            <p><a class="btn btn-lg btn-success" href="{{ url_for('register') }}" role="button">Sign up NOW!</a>
-            </p>
-        </div>
-
-        <div class="row marketing">
-            <div class="col-lg-6">
-                <h4>Review 1</h4>
-                <p>Donec id elit non mi porta gravida at eget metus. Maecenas faucibus mollis interdum.</p>
-
-                <h4>Review 2 </h4>
-                <p>Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Cras mattis consectetur purus sit amet
-                    fermentum.</p>
-
-                <h4>Review 3 </h4>
-                <p>Maecenas sed diam eget risus varius blandit sit amet non magna.</p>
-            </div>
-
-            <div class="col-lg-6">
-                <h4>Review1 </h4>
-                <p>Donec id elit non mi porta gravida at eget metus. Maecenas faucibus mollis interdum.</p>
-
-                <h4>Review 2 </h4>
-                <p>Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Cras mattis consectetur purus sit amet
-                    fermentum.</p>
-
-                <h4>Review 3 </h4>
-                <p>Maecenas sed diam eget risus varius blandit sit amet non magna.</p>
-            </div>
-        </div>
-
-        <footer class="footer">
-            <p>&copy; JDavidZ 2018</p>
-        </footer>
-
+        <h4># 3 </h4>
+        <p>Maecenas sed diam eget risus varius blandit sit amet non magna.</p>
     </div>
-</body>
 
-</html>
+    <div class="col-lg-4">
+        <h2>Book</h2>
+        <h4># 4 </h4>
+        <p>Donec id elit non mi porta gravida at eget metus. Maecenas faucibus mollis interdum.</p>
+
+        <h4># 5 </h4>
+        <p>Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Cras mattis consectetur purus sit amet
+            fermentum.</p>
+
+        <h4># 6 </h4>
+        <p>Maecenas sed diam eget risus varius blandit sit amet non magna.</p>
+    </div>
+    <div class="col-lg-4">
+        <h2>Anime</h2>
+        <h4># 7 </h4>
+        <p>Donec id elit non mi porta gravida at eget metus. Maecenas faucibus mollis interdum.</p>
+
+        <h4># 8 </h4>
+        <p>Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Cras mattis consectetur purus sit amet
+            fermentum.</p>
+
+        <h4># 9 </h4>
+        <p>Maecenas sed diam eget risus varius blandit sit amet non magna.</p>
+    </div>
+</div>
+{% endblock %}
