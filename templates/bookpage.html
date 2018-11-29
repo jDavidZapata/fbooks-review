@@ -7,31 +7,83 @@
 {% block body %}
 
 
-<div class="col-12 col-sm-6 col-lg-8 col-md-8 bg-info left">
-    <h2>Results For Book Title/Isbn#:</h2>
-    <div class="row">
+<div class="col-12 col-sm-6 col-lg-8 col-md-8 bg-dark left">
+    <h2>Book Result:</h2>
+    <div class="row justify-content-end">
+        {% if book %}
+
+        <div class="col-lg-5 col-md-5 ">
+            <h3><span class="badge badge-pill badge-light">Book Title: </span></h3>
+            <h4><a href="#" class="badge badge-warning">{{book.title}}</a></h4>
+        </div>
         <div class="col-lg-5 col-md-5">
-            <h3><span class="badge badge-pill badge-light">Book Tile: </span></h3>
-            <h4><a href="#" class="badge badge-dark">Title of Book</a></h4>
-            <h3><span class="badge badge-pill badge-light">Book Author:</span></h3>
-            <h4><a href="#" class="badge badge-dark">Author of Book</a></h4>
-            <h3><span class="badge badge-pill badge-light">Isbn #:</span></h3>
-            <h4><a href="#" class="badge badge-dark">Isbn # of Book</a></h4>
+            <h3><span class="badge badge-pill badge-light">Book Author: </span></h3>
+            <h4><a href="#" class="badge badge-warning">{{book.author}}</a></h4>
+        </div>
+        <div class="col-lg-5 col-md-5">
+            <h3><span class="badge badge-pill badge-light">Publication Year: </span></h3>
+            <h4><a href="#" class="badge badge-warning">{{book.year}}</a></h4>
+        </div>
+        <div class="col-lg-5 col-md-5">
+            <h3><span class="badge badge-pill badge-light">Book Isbn #: </span></h3>
+            <h4><a href="#" class="badge badge-warning">{{book.isbn}}</a></h4>
         </div>
 
-        <div class="col-lg-7 col-md-7">
-            <h3><span class="badge badge-pill badge-light">Reviews From App:</span></h3>
-            <h4><a href="#" class="badge badge-dark"># of Reviews if any</a></h4>
-            <h3><span class="badge badge-pill badge-light">Review Score From API:</span></h3>
-            <h4><a href="#" class="badge badge-dark">Score From 1 to 5 For Book</a></h4>
-            <h3><span class="badge badge-pill badge-light"># Of Reviews From API</span></h3>
-            <h4><a href="#" class="badge badge-dark"># Of Reviews</a></h4>
+        <div class="col-lg-5 col-md-5">
+            <h3><span class="badge badge-pill badge-light">Book id #: </span></h3>
+            <h4><a href="#" class="badge badge-warning">{{book.id}}</a></h4>
         </div>
+
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
+
+
+
+{% block content2 %}
+
+{% if g.user %}
+<div class="row align-items-center bg-secondary create justify-content-center">
+
+    <div class="col-12 col-sm-6 col-lg-8">
+        <form>
+            <div class="form-group">
+                <label for="exampleFormControlTextarea1">Write A Review</label>
+                <textarea class="form-control" id="exampleFormControlTextarea1" rows="5"></textarea>
+            </div>
+        </form>
+    </div>
+    <div class="col-12 col-lg-4 col-sm-6 align-self-center">
+        <p>GIve It A Rating From 1 (Bad) to 5 (Good)</p>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">
+            <label class="form-check-label" for="inlineRadio1">1</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+            <label class="form-check-label" for="inlineRadio2">2</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio3" value="option3">
+            <label class="form-check-label" for="inlineRadio3">3</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option4">
+            <label class="form-check-label" for="inlineRadio2">4</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio3" value="option5">
+            <label class="form-check-label" for="inlineRadio3">5</label>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit Review</button>
 
     </div>
 
 </div>
 
+{% endif %}
+
 {% endblock %}
 
-{% block content2 %}{% endblock %}

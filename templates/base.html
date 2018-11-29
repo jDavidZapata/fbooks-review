@@ -61,6 +61,10 @@
     a:active {
         color: #fffb00;
     }
+
+    .col {
+      padding: 10px;
+    }
   
 
   </style>
@@ -72,7 +76,7 @@
   <title>Comic-Book-Anime {% block title %}{% endblock %}</title>
 </head>
 
-<body autocomplete="off">
+<body>
   <div class="container-fluid">
     <div class="header">
 
@@ -80,7 +84,7 @@
         <a class="navbar-brand" href="#">
           <h3>{% block header %}Comic-Book-Anime{% endblock %}</h3>
         </a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-tarPOST="#navbarText" aria-controls="navbarText"
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText"
           aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
@@ -92,9 +96,6 @@
             <li class="nav-item">
               <a class="nav-link" href="{{ url_for('search') }}">Search</a>
             </li>
-            <!--li class="nav-item">
-              <a class="nav-link" href="{{ url_for('book', b_title=book.title) }}">Book</a>
-            </li-->
             {% if g.user %}
             <li class="nav-item">
               <a class="nav-link" href="{{ url_for('create') }}">Create</a>
