@@ -29,6 +29,8 @@ db = scoped_session(sessionmaker(bind=engine))
 def index():
     
     error = None
+
+    book = None
     
     books = db.execute('SELECT title FROM books ORDER BY random() LIMIT 9').fetchall()
 
@@ -41,13 +43,13 @@ def index():
     if (not 'user_id' in session):
         g.user = None
 
-        return render_template("index.html", books=books, error=error)
+        return render_template("index.html", books=books, error=error, book=book)
     else:
         g.user = db.execute(    
             'SELECT * FROM users WHERE id = :id', {"id": user_id,}
         ).fetchone()
 
-        return render_template("index.html", books=books, error=error)
+        return render_template("index.html", books=books, error=error, book=book)
         
 
 
@@ -113,7 +115,7 @@ def register():
             return redirect(url_for('index'))
         
 
-    return render_template('auth/register.html', error=error)
+    return render_template('auth/register.html', book=book, error=error)
 
 
 
@@ -159,7 +161,7 @@ def login():
 
         flash(error)
         
-    return render_template('auth/login.html', error=error)
+    return render_template('auth/login.html', book=book, error=error)
     
 
 
@@ -179,9 +181,13 @@ def search():
 
     error = None
 
+    book = None
+
     books = None
     
     user_id = session.get('user_id')
+
+    """Check to see if User is in session."""
 
     if (not 'user_id' in session):
         g.user = None
@@ -196,17 +202,17 @@ def search():
         if request.form.get('b_title', None):
             b_title = request.form['b_title']
             books = db.execute('SELECT title FROM books WHERE title = :title', {"title": b_title,}).fetchall()
-            return render_template("search.html", books=books ,error=error)
+            return render_template("search.html", books=books ,error=error, book=book)
     
         elif request.form.get('b_author', None):
             b_author = request.form['b_author']
             books = db.execute('SELECT title FROM books WHERE author = :author', {"author": b_author,}).fetchall()
-            return render_template("search.html", books=books ,error=error)
+            return render_template("search.html", books=books ,error=error, book=book)
 
         elif request.form.get('b_isbn', None):
             b_isbn = request.form['b_isbn']
             books = db.execute('SELECT title FROM books WHERE isbn = :isbn', {"isbn": b_isbn,}).fetchall()
-            return render_template("search.html", books=books ,error=error)
+            return render_template("search.html", books=books ,error=error, book=book)
 
         else:
             books = db.execute('SELECT title FROM books ORDER BY random() LIMIT 9').fetchall()
@@ -214,65 +220,56 @@ def search():
         
     books = db.execute('SELECT title FROM books ORDER BY random() LIMIT 9').fetchall()
 
-    return render_template("search.html", books=books, error=error)
+    return render_template("search.html", books=books, error=error, book=book)
 
+  
+@app.route('/book/<string:b_title>' )
+def book(b_title):
 
+    error = None
 
-
-'''
-    #Check to see if User is in session.
-    
-
-    if (not 'user_id' in session):
-        g.user = None
-        books = db.execute('SELECT title FROM books ORDER BY random() LIMIT 9').fetchall()
-
-        return render_template("search.html", books=books ,error=error)
-    else:
-        g.user = db.execute(    
-            'SELECT * FROM users WHERE id = :id', {"id": user_id,}
-        ).fetchone()
-        books = db.execute('SELECT title FROM books ORDER BY random() LIMIT 9').fetchall()
-
-        return render_template("search.html", books=books, error=error)
-
-'''
-
-    
-    
-    
-
-'''
     user_id = session.get('user_id')
-    if ('user_id' in session):
-        g.user = db.execute(    
-            'SELECT * FROM users WHERE id = :id', {"id": user_id,}
-        ).fetchone()
-
-        # change to redirect to current page
-        return render_template("search.html", books=books, error=error)
-
-
-
+    
+    book = db.execute('SELECT * FROM books WHERE title = :title', {"title": b_title,}).fetchone()
 
     """Check to see if User is in session."""
 
+    if (not 'user_id' in session):
+        g.user = None
+    else:
+        g.user = db.execute(    
+            'SELECT * FROM users WHERE id = :id', {"id": user_id,}
+        ).fetchone()
+       
+    
+
+   
+   
+    return render_template("bookpage.html", book=book, error=error)
+
+    
+    
+'''  
+    
     user_id = session.get('user_id')
+
+    """Check to see if User is in session."""
 
     if (not 'user_id' in session):
         g.user = None
-
-        return render_template("search.html", books=books ,error=error)
     else:
         g.user = db.execute(    
             'SELECT * FROM users WHERE id = :id', {"id": user_id,}
         ).fetchone()
 
-        return render_template("search.html", books=books, error=error)
-''' 
+'''       
+    
+    
 
-@app.route('/book', methods=['GET', 'POST'])
-def book():
+
+
+    
+''' 
     error = None
 
     """Check to see if User is in session."""
@@ -289,8 +286,9 @@ def book():
         ).fetchone()
 
         return render_template("bookpage.html", error=error)
-  
+'''
     
+
 @app.route('/create', methods=['GET', 'POST'])
 def create():
     error = None
@@ -302,13 +300,13 @@ def create():
     if (not 'user_id' in session):
         g.user = None
 
-        return render_template("reviews/create.html", error=error)
+        return render_template("reviews/create.html", error=error, book=book)
     else:
         g.user = db.execute(    
             'SELECT * FROM users WHERE id = :id', {"id": user_id,}
         ).fetchone()
 
-        return render_template("reviews/create.html", error=error)
+        return render_template("reviews/create.html", error=error, book=book)
   
     
  
