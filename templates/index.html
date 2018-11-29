@@ -98,11 +98,11 @@
 
 
 
-<div class="col-12 col-sm-6 col-lg-8 bg-info left">
+<div class="col-12 col-sm-6 col-lg-8 col-md-8 bg-info left">
     <h2>Random Picks:</h2>
     <div class="row">
         {% for book in books %}
-        <div class="col-lg-4">
+        <div class="col-lg-4 col-md-6 ">
             <h2>*</h2>
             <h4><a href="{{ url_for('book') }}" class="badge badge-danger" class="badge badge-danger">{{book.title}}</a></h4>
         </div>
