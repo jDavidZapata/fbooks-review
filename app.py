@@ -68,6 +68,8 @@ def register():
         g.user = db.execute(    
             'SELECT * FROM users WHERE id = :id', {"id": user_id,}
         ).fetchone()
+
+        # change to redirect to current page
         return render_template("index.html")
          
 
@@ -105,10 +107,11 @@ def register():
             session['user_id'] = user['id']
             g.user = db.execute(    
             'SELECT * FROM users WHERE id = :id', {"id": user_id,}
-        ).fetchone()
-            return redirect(url_for('index'))
+            ).fetchone()
 
-        flash(error)
+            # Change to redirect to curent page
+            return redirect(url_for('index'))
+        
 
     return render_template('auth/register.html', error=error)
 
@@ -128,6 +131,8 @@ def login():
         g.user = db.execute(    
             'SELECT * FROM users WHERE id = :id', {"id": user_id,}
         ).fetchone()
+
+        # change to redirect to current page
         return render_template("index.html", error=error)
     
     
@@ -171,7 +176,13 @@ def logout():
 
 @app.route('/search', methods=['GET', 'POST'])
 def search():
+
     error = None
+
+    books = None
+        
+    books = db.execute('SELECT title FROM books ORDER BY random() LIMIT 9').fetchall()
+
 
     """Check to see if User is in session."""
 
@@ -180,13 +191,13 @@ def search():
     if (not 'user_id' in session):
         g.user = None
 
-        return render_template("search.html", error=error)
+        return render_template("search.html", books=books ,error=error)
     else:
         g.user = db.execute(    
             'SELECT * FROM users WHERE id = :id', {"id": user_id,}
         ).fetchone()
 
-        return render_template("search.html", error=error)
+        return render_template("search.html", books=books, error=error)
   
 
 @app.route('/book', methods=['GET', 'POST'])

@@ -11,11 +11,8 @@
     *, ::after, ::before {
       box-sizing: border-box;
     }
-    body {
-      position: relative;
-      
-    }
-    
+   
+       
     .form {
       background-color: rgb(255, 251, 0);
       justify-items: center;
@@ -31,6 +28,10 @@
 
     .right {
       padding: 30px;
+    }
+
+    footer {
+      padding: 10px;
     }
 
     .search {
@@ -140,11 +141,11 @@
         {% block body %}{% endblock %}
 
         <div class="col-12 col-lg-4 col-sm-6 col-md-4 bg-danger right">
-          
+
           <form class="form-inline justify-content-center" action="{{ url_for('search') }}" method="GET">
             <div class="form-group mx-sm-3 mb-2">
               <label for="booktitle" class="sr-only">Title</label>
-              <input type="text" name="b_title" class="form-control" id="title" placeholder="Enter Book Title">
+              <input type="text" name="b_title" class="form-control" id="title" placeholder="Enter Book Title" required>
             </div>
             <button type="submit" class="btn btn-primary mb-2">Search For ... Title</button>
           </form>
@@ -152,7 +153,7 @@
           <form class="form-inline justify-content-center" action="{{ url_for('search') }}" method="GET">
             <div class="form-group mx-sm-3 mb-2">
               <label for="bookauthor" class="sr-only">Author</label>
-              <input type="text" name="b_author" class="form-control" id="author" placeholder="Enter Book Author">
+              <input type="text" name="b_author" class="form-control" id="author" placeholder="Enter Book Author" required>
             </div>
             <button type="submit" class="btn btn-primary mb-2">Search For ... Author</button>
           </form>
@@ -160,7 +161,7 @@
           <form class="form-inline justify-content-center" action="{{ url_for('search') }}" method="GET">
             <div class="form-group mx-sm-3 mb-2">
               <label for="bookisbn" class="sr-only">Isbn #</label>
-              <input type="text" name="b_isbn" class="form-control" id="isbn" placeholder="Enter Book Isbn #">
+              <input type="text" name="b_isbn" class="form-control" id="isbn" placeholder="Enter Book Isbn #" required>
             </div>
             <button type="submit" class="btn btn-primary mb-2">Search For ... Isbn # </button>
           </form>
@@ -172,9 +173,18 @@
     {% block content2 %}{% endblock %}
 
     <footer class="footer bg-warning">
-      <p>&copy; Phyrekx, Inc ... JDavidZ 2018</p>
-      <p><a class="bg-dark" href="#">Belmar, nj</a></p>
+      <div class="container-row">
+        <div class="row">
+          <div class="col-8 col-md-9">
+            <h6>&copy; Phyrekx, Inc ...  JDavidZ 2018</h6>
+          </div>
+          <div class="col-4 col-md-3">
+            <p><a class="bg-dark" href="#">Belmar, nj</a></p>
+          </div>
+        </div>
+      </div>
     </footer>
+
   </div>
 
   <!-- Optional JavaScript -->
