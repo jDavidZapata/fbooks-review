@@ -29,6 +29,9 @@ db = scoped_session(sessionmaker(bind=engine))
 def index():
     
     error = None
+    
+    books = db.execute('SELECT title FROM books ORDER BY random() LIMIT 9')
+
 
     """Check to see if User is in session."""
 
