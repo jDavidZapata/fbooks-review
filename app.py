@@ -30,8 +30,9 @@ def index():
     
     error = None
     
-    books = db.execute('SELECT title FROM books ORDER BY random() LIMIT 9')
+    books = db.execute('SELECT title FROM books ORDER BY random() LIMIT 9').fetchall()
 
+    print(books)
 
     """Check to see if User is in session."""
 
@@ -40,13 +41,13 @@ def index():
     if (not 'user_id' in session):
         g.user = None
 
-        return render_template("index.html", error=error)
+        return render_template("index.html", books=books, error=error)
     else:
         g.user = db.execute(    
             'SELECT * FROM users WHERE id = :id', {"id": user_id,}
         ).fetchone()
 
-        return render_template("index.html", error=error)
+        return render_template("index.html", books=books, error=error)
         
 
 
