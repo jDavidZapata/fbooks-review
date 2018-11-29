@@ -140,27 +140,27 @@
         {% block body %}{% endblock %}
 
         <div class="col-12 col-lg-4 col-sm-6 col-md-4 bg-danger right">
-          <form class="form-inline justify-content-center">
-
+          
+          <form class="form-inline justify-content-center" action="{{ url_for('search') }}" method="GET">
             <div class="form-group mx-sm-3 mb-2">
               <label for="booktitle" class="sr-only">Title</label>
-              <input type="text" name="title" class="form-control" id="title" placeholder="Enter Book Title">
+              <input type="text" name="b_title" class="form-control" id="title" placeholder="Enter Book Title">
             </div>
             <button type="submit" class="btn btn-primary mb-2">Search For ... Title</button>
           </form>
-          <form class="form-inline justify-content-center">
 
+          <form class="form-inline justify-content-center" action="{{ url_for('search') }}" method="GET">
             <div class="form-group mx-sm-3 mb-2">
               <label for="bookauthor" class="sr-only">Author</label>
-              <input type="text" class="form-control" id="author" placeholder="Enter Book Author">
+              <input type="text" name="b_author" class="form-control" id="author" placeholder="Enter Book Author">
             </div>
             <button type="submit" class="btn btn-primary mb-2">Search For ... Author</button>
           </form>
-          <form class="form-inline justify-content-center">
 
+          <form class="form-inline justify-content-center" action="{{ url_for('search') }}" method="GET">
             <div class="form-group mx-sm-3 mb-2">
               <label for="bookisbn" class="sr-only">Isbn #</label>
-              <input type="text" class="form-control" id="isbn" placeholder="Enter Book Isbn #">
+              <input type="text" name="b_isbn" class="form-control" id="isbn" placeholder="Enter Book Isbn #">
             </div>
             <button type="submit" class="btn btn-primary mb-2">Search For ... Isbn # </button>
           </form>

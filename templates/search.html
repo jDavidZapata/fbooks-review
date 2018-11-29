@@ -6,7 +6,7 @@
 
 {% block body %}
 
-<div class="col-12 col-sm-6 col-lg-8 col-md-8 bg-dark search left">
+<!---div class="col-12 col-sm-6 col-lg-8 col-md-8 bg-dark search left">
     <h2>Results From Search:</h2>
     <div class="row">
         <div class="col-md-6">
@@ -37,6 +37,21 @@
         </div>
 
     </div>
+</div--->
+
+
+<div class="col-12 col-sm-6 col-lg-8 col-md-8 bg-dark search left">
+    <h2>Results From Search:</h2>
+    <div class="row">
+        {% for book in books %}
+        <div class="col-md-6">
+            <h4>#</h4>
+            <h5><a href="{{ url_for('book') }}" class="badge badge-warning">{{book.title}}</a></h5>
+        </div>
+        {% endfor %}
+    </div>
 </div>
+
+
 
 {% endblock %}
