@@ -80,7 +80,7 @@
         <a class="navbar-brand" href="#">
           <h3>{% block header %}Comic-Book-Anime{% endblock %}</h3>
         </a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText"
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-tarPOST="#navbarText" aria-controls="navbarText"
           aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
@@ -142,7 +142,7 @@
 
         <div class="col-12 col-lg-4 col-sm-6 col-md-4 bg-danger right">
 
-          <form class="form-inline justify-content-center" action="{{ url_for('search') }}" method="GET">
+          <form class="form-inline justify-content-center" action="{{ url_for('search') }}" method="POST">
             <div class="form-group mx-sm-3 mb-2">
               <label for="booktitle" class="sr-only">Title</label>
               <input type="text" name="b_title" class="form-control" id="title" placeholder="Enter Book Title" required>
@@ -150,7 +150,7 @@
             <button type="submit" class="btn btn-primary mb-2">Search For ... Title</button>
           </form>
 
-          <form class="form-inline justify-content-center" action="{{ url_for('search') }}" method="GET">
+          <form class="form-inline justify-content-center" action="{{ url_for('search') }}" method="POST">
             <div class="form-group mx-sm-3 mb-2">
               <label for="bookauthor" class="sr-only">Author</label>
               <input type="text" name="b_author" class="form-control" id="author" placeholder="Enter Book Author" required>
@@ -158,7 +158,7 @@
             <button type="submit" class="btn btn-primary mb-2">Search For ... Author</button>
           </form>
 
-          <form class="form-inline justify-content-center" action="{{ url_for('search') }}" method="GET">
+          <form class="form-inline justify-content-center" action="{{ url_for('search') }}" method="POST">
             <div class="form-group mx-sm-3 mb-2">
               <label for="bookisbn" class="sr-only">Isbn #</label>
               <input type="text" name="b_isbn" class="form-control" id="isbn" placeholder="Enter Book Isbn #" required>
