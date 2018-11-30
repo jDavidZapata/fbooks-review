@@ -133,6 +133,12 @@
       {% endif %}
     </div>
 
+    {% if error %}
+
+    {{error}}
+    
+    {% endif %}
+
 
     {% block content %}{% endblock %}
 
@@ -146,7 +152,8 @@
           <form class="form-inline justify-content-center" action="{{ url_for('search') }}" method="POST">
             <div class="form-group mx-sm-3 mb-2">
               <label for="booktitle" class="sr-only">Title</label>
-              <input type="text" name="b_title" class="form-control" id="booktitle" placeholder="Enter Book Title" required>
+              <input type="text" name="b_title" class="form-control" id="booktitle" placeholder="Enter Book Title"
+                required>
             </div>
             <button type="submit" class="btn btn-primary mb-2">Search For ... Title</button>
           </form>
@@ -154,7 +161,8 @@
           <form class="form-inline justify-content-center" action="{{ url_for('search') }}" method="POST">
             <div class="form-group mx-sm-3 mb-2">
               <label for="bookauthor" class="sr-only">Author</label>
-              <input type="text" name="b_author" class="form-control" id="bookauthor" placeholder="Enter Book Author" required>
+              <input type="text" name="b_author" class="form-control" id="bookauthor" placeholder="Enter Book Author"
+                required>
             </div>
             <button type="submit" class="btn btn-primary mb-2">Search For ... Author</button>
           </form>
@@ -162,7 +170,8 @@
           <form class="form-inline justify-content-center" action="{{ url_for('search') }}" method="POST">
             <div class="form-group mx-sm-3 mb-2">
               <label for="bookisbn" class="sr-only">Isbn #</label>
-              <input type="text" name="b_isbn" class="form-control" id="bookisbn" placeholder="Enter Book Isbn #" required>
+              <input type="text" name="b_isbn" class="form-control" id="bookisbn" placeholder="Enter Book Isbn #"
+                required>
             </div>
             <button type="submit" class="btn btn-primary mb-2">Search For ... Isbn # </button>
           </form>
@@ -171,13 +180,14 @@
       </div>
     </div>
 
+
     {% block content2 %}{% endblock %}
 
     <footer class="footer bg-warning">
       <div class="container-row">
         <div class="row">
           <div class="col-8 col-md-9">
-            <h6>&copy; Phyrekx, Inc ...  JDavidZ 2018</h6>
+            <h6>&copy; Phyrekx, Inc ... JDavidZ 2018</h6>
           </div>
           <div class="col-4 col-md-3">
             <p><a class="bg-dark" href="#">Belmar, nj</a></p>

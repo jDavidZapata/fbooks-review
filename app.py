@@ -36,7 +36,6 @@ def index():
 
     db.close()
 
-    print(books)
 
     """Check to see if User is in session."""
 
@@ -202,6 +201,14 @@ def search():
 
     if (not 'user_id' in session):
         g.user = None
+
+        
+        #book = db.execute('SELECT * FROM books WHERE title = :title', {"title": b_title,}).fetchone()
+        books = db.execute('SELECT * FROM books ORDER BY random() LIMIT 9').fetchall()
+    
+        return render_template("search.html", book=book, books=books, error=error)
+
+
     else:
         g.user = db.execute(    
             'SELECT * FROM users WHERE id = :id', {"id": user_id,}
@@ -277,6 +284,8 @@ def book(b_title):
 def create():
     error = None
 
+    book = None
+
     """Check to see if User is in session."""
 
     user_id = session.get('user_id')
@@ -309,24 +318,18 @@ def create():
 
             error = None
 
-            if not rating:
-                error = 'Rating is required.'
-            elif not review_text:
-                error = 'Review is required.'
-            
-
             # check to see if user id is in the review for that book
             if error is None:
-
 
                 user_review = db.execute("SELECT * FROM reviews WHERE review_user_id = :review_user_id AND rbook_isbn = :rbook_isbn", {"review_user_id": review_user_id, "rbook_isbn": rbook_isbn}).fetchone()
         
 
                 if user_review is not None:
 
-                    error = 'User {0} has already Reviewed this Book.'.format(name)
+                    error = 'User {0} has already Reviewed this Book.'.format('user_id')
 
                     # Insert Values into Database 
+                else:    
 
                     db.execute("INSERT INTO reviews (rating, review_text, review_user_id, rbook_isbn) VALUES (:rating, :review_text, :review_user_id, :rbook_isbn)",
                         {"rating": rating, "review_text": review_text, "review_user_id": review_user_id, "rbook_isbn": rbook_isbn})
@@ -334,6 +337,7 @@ def create():
  
                     return "success Thank You for creating review"       
         
+            
         return render_template("bookpage.html", error=error, book=book)
    
     
