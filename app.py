@@ -302,14 +302,14 @@ def create():
         
         if request.method == 'POST':
 
-            review_rating = request.form['radio']
+            rating = request.form['radio']
             review_text = request.form['reviewtext']
-            ruser_id = user_id
+            review_user_id = user_id
             rbook_isbn = book.isbn
 
             error = None
 
-            if not review_rating:
+            if not rating:
                 error = 'Rating is required.'
             elif not review_text:
                 error = 'Review is required.'
@@ -319,7 +319,7 @@ def create():
             if error is None:
 
 
-                user_review = db.execute("SELECT * FROM reviews WHERE ruser_id = :ruser_id AND rbook_isbn = :rbook_isbn", {"ruser_id": ruser_id, "rbook_isbn": rbook_isbn}).fetchone()
+                user_review = db.execute("SELECT * FROM reviews WHERE review_user_id = :review_user_id AND rbook_isbn = :rbook_isbn", {"review_user_id": review_user_id, "rbook_isbn": rbook_isbn}).fetchone()
         
 
                 if user_review is not None:
@@ -328,8 +328,8 @@ def create():
 
                     # Insert Values into Database 
 
-                    db.execute("INSERT INTO reviews (review_rating, review_text, ruser_id, rbook_isbn) VALUES (:review_rating, :review_text, :ruser_id, :rbook_isbn)",
-                        {"review_rating": review_rating, "review_text": review_text, "ruser_id": ruser_id, "rbook_isbn": rbook_isbn})
+                    db.execute("INSERT INTO reviews (rating, review_text, review_user_id, rbook_isbn) VALUES (:rating, :review_text, :review_user_id, :rbook_isbn)",
+                        {"rating": rating, "review_text": review_text, "review_user_id": review_user_id, "rbook_isbn": rbook_isbn})
                     db.commit()
  
                     return "success Thank You for creating review"       
