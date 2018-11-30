@@ -45,46 +45,44 @@
 {% block content2 %}
 
 {% if g.user %}
-<div class="row align-items-center bg-secondary create justify-content-center">
-
-    <div class="col-12 col-sm-6 col-lg-8">
-        <form>
+<form action="{{ url_for('create') }}" method="POST">
+    <div class="row align-items-center bg-secondary create justify-content-center">
+        <div class="col-12 col-sm-6 col-lg-7">
             <div class="form-group">
-                <label for="Textarea1"><h4>Write A Review</h4></label>
-                <textarea class="form-control" id="Textarea1" rows="5"></textarea>
+                <label for="Textarea1">
+                    <h4>Write A Review</h4>
+                </label>
+                <textarea class="form-control" name="reviewtext" id="Textarea1" rows="5" required></textarea>
             </div>
-        </form>
-    </div>
-    <div class="col-12 col-lg-4 col-sm-6 align-self-center">
-        <p>Give It A Rating:</p>
-        <p>1 (Bad) to 5 (Good)</p>
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="radio" id="Radio1" value="1">
-            <label class="form-check-label" for="Radio1">1</label>
         </div>
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="radio" id="Radio2" value="2">
-            <label class="form-check-label" for="Radio2">2</label>
+        <div class="col-12 col-lg-4 col-sm-6">
+            <p>Give It A Rating:</p>
+            <p>1 (Bad) to 5 (Good)</p>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="radio" id="Radio1" value="1" required>
+                <label class="form-check-label" for="Radio1">1</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="radio" id="Radio2" value="2">
+                <label class="form-check-label" for="Radio2">2</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="radio" id="Radio3" value="3">
+                <label class="form-check-label" for="Radio3">3</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="radio" id="Radio4" value="4">
+                <label class="form-check-label" for="Radio4">4</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="radio" id="Radio5" value="5">
+                <label class="form-check-label" for="Radio5">5</label>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit Review</button>
         </div>
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="radio" id="Radio3" value="3">
-            <label class="form-check-label" for="Radio3">3</label>
-        </div>
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="radio" id="Radio4" value="4">
-            <label class="form-check-label" for="Radio4">4</label>
-        </div>
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="radio" id="Radio5" value="5">
-            <label class="form-check-label" for="Radio5">5</label>
-        </div>
-        <button type="submit" class="btn btn-primary">Submit Review</button>
 
     </div>
-
-</div>
-
+</form>
 {% endif %}
 
 {% endblock %}
-

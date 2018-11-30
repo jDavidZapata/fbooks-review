@@ -32,7 +32,7 @@ def index():
 
     book = None
     
-    books = db.execute('SELECT title FROM books ORDER BY random() LIMIT 9').fetchall()
+    books = db.execute('SELECT * FROM books ORDER BY random() LIMIT 9').fetchall()
 
     db.close()
 
@@ -231,11 +231,11 @@ def search():
             return render_template("search.html", books=books ,error=error, book=book)
 
         else:
-            books = db.execute('SELECT title FROM books ORDER BY random() LIMIT 9').fetchall()
+            books = db.execute('SELECT * FROM books ORDER BY random() LIMIT 9').fetchall()
             db.close()
             return render_template("search.html", books=books ,error=error)
         
-    books = db.execute('SELECT title FROM books ORDER BY random() LIMIT 9').fetchall()
+    books = db.execute('SELECT * FROM books ORDER BY random() LIMIT 9').fetchall()
     db.close()
 
     return render_template("search.html", books=books, error=error, book=book)
@@ -281,7 +281,14 @@ def create():
 
     user_id = session.get('user_id')
 
+    if (not 'user_id' in session):
+        g.user = None
+
+        return render_template("bookpage.html", error=error, book=book)
+  
+    
     if ('b_title' in session):
+
         b_title = session.get('b_title')
 
         book = db.execute('SELECT * FROM books WHERE title = :title', {"title": b_title,}).fetchone() 
@@ -292,18 +299,51 @@ def create():
 
         db.close()
 
+        
+        if request.method == 'POST':
+
+            review_rating = request.form['radio']
+            review_text = request.form['reviewtext']
+            user_id = user_id
+            book_isbn = book.isbn
+
+            error = None
+
+            if not review_rating:
+                error = 'Rating is required.'
+            elif not review_text:
+                error = 'Review is required.'
+            
+
+            # check to see if user id is in the review for that book
+            if error is None:
+
+
+                user_review = db.execute("SELECT * FROM reviews WHERE user_id = :user_id AND book_isbn = :book_isbn", {"user_id": user_id, "book_isbn": book_isbn}).fetchone()
+        
+
+                if user_review is not None:
+
+                    error = 'User {0} has already Reviewed this Book.'.format(name)
+
+                    # Insert Values into Database 
+
+                    db.execute("INSERT INTO reviews (review_rating, review_text, user_id, book_isbn) VALUES (:review_rating, :review_text, :user_id, :book_isbn)",
+                        {"review_rating": review_rating, "review_text": review_text, "user_id": user_id, "book_isbn": book_isbn})
+                    db.commit()
+ 
+                    return "success Thank You for creating review"       
+        
         return render_template("bookpage.html", error=error, book=book)
    
-    if (not 'user_id' in session):
-        g.user = None
+    
 
-        return render_template("bookpage.html", error=error, book=book)
-
+    
 
     
  
  
 if __name__ == "__main__":
-    app.secret_key = os.urandom(12)
+    app.secret_key = os.urandom(13)
     app.run()
 
