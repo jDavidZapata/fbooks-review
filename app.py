@@ -207,6 +207,8 @@ def search():
             'SELECT * FROM users WHERE id = :id', {"id": user_id,}
         ).fetchone()
 
+        db.close()
+
       
     if request.method == 'POST':
         
@@ -245,12 +247,40 @@ def book(b_title):
     error = None
 
     user_id = session.get('user_id')
+
+    """Check to see if User is in session."""
+
+    if (not 'user_id' in session):
+        g.user = None
+
+        
+        book = db.execute('SELECT * FROM books WHERE title = :title', {"title": b_title,}).fetchone()
     
+        return render_template("bookpage.html", book=book, error=error)
+
+    else:
+        g.user = db.execute(    
+            'SELECT * FROM users WHERE id = :id', {"id": user_id,}
+        ).fetchone()
+
+        db.close()
+        
+        book = db.execute('SELECT * FROM books WHERE title = :title', {"title": b_title,}).fetchone() 
+
+        session['b_title'] = b_title
+
+        return render_template("bookpage.html", book=book, error=error)
+
+
+
+'''
+
+if ('b_title' in session):
+            b_title = session.get('b_title')
+
+
     book = db.execute('SELECT * FROM books WHERE title = :title', {"title": b_title,}).fetchone()
     
-
-    print = (book)
-
     """Check to see if User is in session."""
 
     if (not 'user_id' in session):
@@ -259,11 +289,14 @@ def book(b_title):
         g.user = db.execute(    
             'SELECT * FROM users WHERE id = :id', {"id": user_id,}
         ).fetchone()
-        db.close()
-      
-   
-    return render_template("bookpage.html", book=book, error=error)
 
+        db.close()
+
+        session['b_title'] = b_title        
+      
+
+    return render_template("bookpage.html", book=book, error=error)
+'''
     
     
 '''  
@@ -314,17 +347,40 @@ def create():
 
     user_id = session.get('user_id')
 
+    if ('b_title' in session):
+        b_title = session.get('b_title')
+
+        book = db.execute('SELECT * FROM books WHERE title = :title', {"title": b_title,}).fetchone() 
+
+        g.user = db.execute(    
+            'SELECT * FROM users WHERE id = :id', {"id": user_id,}
+        ).fetchone()
+
+        db.close()
+
+        return render_template("bookpage.html", error=error, book=book)
+   
     if (not 'user_id' in session):
         g.user = None
 
-        return render_template("reviews/create.html", error=error, book=book)
+        return render_template("bookpage.html", error=error, book=book)
+
+
+
+'''
     else:
         g.user = db.execute(    
             'SELECT * FROM users WHERE id = :id', {"id": user_id,}
         ).fetchone()
 
-        return render_template("reviews/create.html", error=error, book=book)
-  
+        db.close()
+
+        book = db.execute('SELECT * FROM books WHERE title = :title', {"title": b_title,}).fetchone()
+
+        session['book'] = book
+
+        return render_template("bookpage.html", error=error, book=book)
+  '''
     
  
  
