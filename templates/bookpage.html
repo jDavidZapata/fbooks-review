@@ -21,7 +21,7 @@
             <h4><a href="#" class="badge badge-warning">{{book.author}}</a></h4>
         </div>
         <div class="col-lg-5 col-md-5">
-            <h3><span class="badge badge-pill badge-light">Publication Year: </span></h3>
+            <h3><span class="badge badge-pill badge-light">Year Published: </span></h3>
             <h4><a href="#" class="badge badge-warning">{{book.year}}</a></h4>
         </div>
         <div class="col-lg-5 col-md-5">
@@ -30,8 +30,23 @@
         </div>
 
         <div class="col-lg-5 col-md-5">
-            <h3><span class="badge badge-pill badge-light">Book id #: </span></h3>
-            <h4><a href="#" class="badge badge-warning">{{book.id}}</a></h4>
+            <h3><span class="badge badge-pill badge-light">Reviews: </span></h3>
+            <h4><a href="#" class="badge badge-warning">{{book.review_count}}</a></h4>
+        </div>
+
+        <div class="col-lg-5 col-md-5">
+            <h3><span class="badge badge-pill badge-light">Rating: </span></h3>
+            <h4><a href="#" class="badge badge-warning">{{book.review_rating}</a></h4>
+        </div>
+
+        <div class="col-lg-5 col-md-5">
+            <h3><span class="badge badge-pill badge-light">Reviews From GoodReads: </span></h3>
+            <h4><a href="#" class="badge badge-warning">{{book.goodreview_count}}</a></h4>
+        </div>
+
+        <div class="col-lg-5 col-md-5">
+            <h3><span class="badge badge-pill badge-light">Rating From GoodReads: </span></h3>
+            <h4><a href="#" class="badge badge-warning">{{book.goodreview_count}}</a></h4>
         </div>
 
         {% endif %}

@@ -304,8 +304,8 @@ def create():
 
             review_rating = request.form['radio']
             review_text = request.form['reviewtext']
-            user_id = user_id
-            book_isbn = book.isbn
+            ruser_id = user_id
+            rbook_isbn = book.isbn
 
             error = None
 
@@ -319,7 +319,7 @@ def create():
             if error is None:
 
 
-                user_review = db.execute("SELECT * FROM reviews WHERE user_id = :user_id AND book_isbn = :book_isbn", {"user_id": user_id, "book_isbn": book_isbn}).fetchone()
+                user_review = db.execute("SELECT * FROM reviews WHERE ruser_id = :ruser_id AND rbook_isbn = :rbook_isbn", {"ruser_id": ruser_id, "rbook_isbn": rbook_isbn}).fetchone()
         
 
                 if user_review is not None:
@@ -328,8 +328,8 @@ def create():
 
                     # Insert Values into Database 
 
-                    db.execute("INSERT INTO reviews (review_rating, review_text, user_id, book_isbn) VALUES (:review_rating, :review_text, :user_id, :book_isbn)",
-                        {"review_rating": review_rating, "review_text": review_text, "user_id": user_id, "book_isbn": book_isbn})
+                    db.execute("INSERT INTO reviews (review_rating, review_text, ruser_id, rbook_isbn) VALUES (:review_rating, :review_text, :ruser_id, :rbook_isbn)",
+                        {"review_rating": review_rating, "review_text": review_text, "ruser_id": ruser_id, "rbook_isbn": rbook_isbn})
                     db.commit()
  
                     return "success Thank You for creating review"       
