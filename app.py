@@ -326,7 +326,7 @@ def create():
 
                 if user_review is not None:
 
-                    error = 'User {0} has already Reviewed this Book.'.format('user_id')
+                    error = 'User {0} has already Reviewed this Book.'.format(user_id)
 
                     # Insert Values into Database 
                 else:    
