@@ -213,27 +213,41 @@ def search():
 
     """Check to see if User is in session."""
 
+    if (not 'user_id' in session):
+        g.user = None
+
+    else:
+        g.user = db.execute(    
+                'SELECT * FROM users WHERE id = :id', {"id": user_id,}
+            ).fetchone()
+
+        db.close()     
     
 
-      
     if request.method == 'POST':
-        
+                
         if request.form.get('b_title', None):
             b_title = request.form['b_title']
             books = db.execute("SELECT * FROM books WHERE title ILIKE ('%' || :title || '%')", {"title": b_title,}).fetchall()
             db.close()
+            if books is None:
+                error = "No Such Title"
             return render_template("search.html", books=books ,error=error, book=book)
-    
+            
         elif request.form.get('b_author', None):
             b_author = request.form['b_author']
             books = db.execute("SELECT * FROM books WHERE author ILIKE ('%' || :author || '%')", {"author": b_author,}).fetchall()
             db.close()
+            if books is None:
+                error = "No Such Author"
             return render_template("search.html", books=books ,error=error, book=book)
 
         elif request.form.get('b_isbn', None):
             b_isbn = request.form['b_isbn']
             books = db.execute("SELECT * FROM books WHERE isbn ILIKE ('%' || :isbn || '%')", {"isbn": b_isbn,}).fetchall()
             db.close()
+            if books is None:
+                error = "No Such isbn #"
             return render_template("search.html", books=books ,error=error, book=book)
 
         else:
@@ -242,28 +256,10 @@ def search():
 
             return render_template("search.html", books=books ,error=error)
 
-    if (not 'user_id' in session):
-        g.user = None
+    # book = db.execute('SELECT * FROM books WHERE title = :title', {"title": b_title,}).fetchone()
+    books = db.execute('SELECT * FROM books ORDER BY random() LIMIT 9').fetchall()
 
-            
-        # book = db.execute('SELECT * FROM books WHERE title = :title', {"title": b_title,}).fetchone()
-        books = db.execute('SELECT * FROM books ORDER BY random() LIMIT 9').fetchall()
-        
-        return render_template("search.html", book=book, books=books, error=error)
-
-
-    else:
-        g.user = db.execute(    
-                'SELECT * FROM users WHERE id = :id', {"id": user_id,}
-            ).fetchone()
-
-        db.close()
-
-        # book = db.execute('SELECT * FROM books WHERE title = :title', {"title": b_title,}).fetchone()
-        books = db.execute('SELECT * FROM books ORDER BY random() LIMIT 9').fetchall()
-        
-
-        return render_template("search.html", books=books, error=error, book=book)
+    return render_template("search.html", books=books, error=error, book=book)
 
 
 
