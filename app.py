@@ -32,7 +32,7 @@ def index():
     book = None
 
     books = db.execute(
-        'SELECT * FROM books ORDER BY random() LIMIT 9').fetchall()
+        'SELECT * FROM (SELECT * FROM books ORDER BY random() LIMIT 9) TB ORDER BY title ASC').fetchall()
 
     db.close()
 
@@ -99,7 +99,6 @@ def register():
         if user is not None:
             error = 'User with email {0} is already registered.'.format(email)
 
-
         if error is None:
             """If the name is available, store it in the database and go to the login page"""
 
@@ -107,17 +106,15 @@ def register():
                        {"name": name, "password": password, "email": email})
             db.commit()
 
-            
             user = db.execute("SELECT * FROM users WHERE email IN (:email)", {
                               "email": email}).fetchone()
-            
 
             """Store the user id in a new session and return to the index"""
 
             session.clear()
             session['user_id'] = user['id']
-            g.user = user 
-            
+            g.user = user
+
             '''
             g.user = db.execute(
                 'SELECT * FROM users WHERE id IN (:id)', {"id": user_id, }
@@ -222,7 +219,7 @@ def search():
         if request.form.get('b_title', None):
             b_title = request.form['b_title']
             books = db.execute(
-                "SELECT * FROM books WHERE title ILIKE ('%' || :title || '%')", {"title": b_title, }).fetchall()
+                "SELECT * FROM books WHERE title ILIKE ('%' || :title || '%') ORDER BY title ASC", {"title": b_title, }).fetchall()
             db.close()
             if books is None:
                 error = "No Such Title"
@@ -231,7 +228,7 @@ def search():
         elif request.form.get('b_author', None):
             b_author = request.form['b_author']
             books = db.execute(
-                "SELECT * FROM books WHERE author ILIKE ('%' || :author || '%')", {"author": b_author, }).fetchall()
+                "SELECT * FROM books WHERE author ILIKE ('%' || :author || '%') ORDER BY title ASC", {"author": b_author, }).fetchall()
             db.close()
             if books is None:
                 error = "No Such Author"
@@ -240,22 +237,23 @@ def search():
         elif request.form.get('b_isbn', None):
             b_isbn = request.form['b_isbn']
             books = db.execute(
-                "SELECT * FROM books WHERE isbn ILIKE ('%' || :isbn || '%')", {"isbn": b_isbn, }).fetchall()
+                "SELECT * FROM books WHERE isbn ILIKE ('%' || :isbn || '%') ORDER BY title ASC", {"isbn": b_isbn, }).fetchall()
             db.close()
             if books is None:
                 error = "No Such isbn #"
             return render_template("search.html", books=books, error=error, book=book)
 
         else:
+
             books = db.execute(
-                'SELECT * FROM books ORDER BY random() LIMIT 9').fetchall()
+                'SELECT * FROM (SELECT * FROM books ORDER BY random() LIMIT 9) TB ORDER BY title ASC').fetchall()
             db.close()
 
             return render_template("search.html", books=books, error=error)
 
     # book = db.execute('SELECT * FROM books WHERE title = :title', {"title": b_title,}).fetchone()
     books = db.execute(
-        'SELECT * FROM books ORDER BY random() LIMIT 9').fetchall()
+        'SELECT * FROM (SELECT * FROM books ORDER BY random() LIMIT 9) TB ORDER BY title ASC').fetchall()
 
     return render_template("search.html", books=books, error=error, book=book)
 
