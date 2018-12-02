@@ -267,7 +267,7 @@ def book(b_title):
 
         
         #book = db.execute('SELECT * FROM books WHERE title = :title', {"title": b_title,}).fetchone()
-        book = db.execute('SELECT title, author, isbn, year, avg(rating), count(rating) from books left join reviews on isbn = rbook_isbn where title = :title group by title, author, isbn, year', {"title": b_title,}).fetchone()
+        book = db.execute('SELECT title, author, isbn, year, round(avg(rating), 1), count(rating) from books left join reviews on isbn = rbook_isbn where title = :title group by title, author, isbn, year', {"title": b_title,}).fetchone()
     
         return render_template("bookpage.html", book=book, error=error)
 
@@ -279,7 +279,7 @@ def book(b_title):
         db.close()
         
         # book = db.execute('SELECT * FROM books WHERE title = :title', {"title": b_title,}).fetchone() 
-        book = db.execute('SELECT title, author, isbn, year, avg(rating), count(rating) from books left join reviews on isbn = rbook_isbn where title = :title group by title, author, isbn, year', {"title": b_title,}).fetchone()
+        book = db.execute('SELECT title, author, isbn, year, round(avg(rating), 1), count(rating) from books left join reviews on isbn = rbook_isbn where title = :title group by title, author, isbn, year', {"title": b_title,}).fetchone()
 
         session['b_title'] = b_title
 
@@ -308,7 +308,7 @@ def create():
         b_title = session.get('b_title')
 
         # book = db.execute('SELECT * FROM books WHERE title = :title', {"title": b_title,}).fetchone() 
-        book = db.execute('SELECT title, author, isbn, year, avg(rating), count(rating) from books left join reviews on isbn = rbook_isbn where title = :title group by title, author, isbn, year', {"title": b_title,}).fetchone()
+        book = db.execute('SELECT title, author, isbn, year, round(avg(rating), 1), count(rating) from books left join reviews on isbn = rbook_isbn where title = :title group by title, author, isbn, year', {"title": b_title,}).fetchone()
 
         g.user = db.execute(    
             'SELECT * FROM users WHERE id = :id', {"id": user_id,}
@@ -335,7 +335,7 @@ def create():
 
                 if user_review is not None:
 
-                    error = 'User {0} has already Reviewed this Book.'.format(user_id)
+                    error = 'You have already Reviewed this Book.'
 
                     # Insert Values into Database 
                 else:    
@@ -344,7 +344,7 @@ def create():
                         {"rating": rating, "review_text": review_text, "review_user_id": review_user_id, "rbook_isbn": rbook_isbn})
                     db.commit()
  
-                    return "success Thank You for creating review"       
+                    return render_template("bookpage.html", error=error, book=book)       
         
             
         return render_template("bookpage.html", error=error, book=book)
