@@ -34,8 +34,6 @@ def index():
     books = db.execute(
         'SELECT * FROM (SELECT * FROM books ORDER BY random() LIMIT 9) TB ORDER BY title ASC').fetchall()
 
-    db.close()
-
     """Check to see if User is in session."""
 
     user_id = session.get('user_id')
@@ -48,8 +46,7 @@ def index():
         g.user = db.execute(
             'SELECT * FROM users WHERE id IN (:id)', {"id": user_id, }
         ).fetchone()
-        db.close()
-
+        
         return render_template("index.html", books=books, error=error, book=book)
 
 
@@ -72,8 +69,6 @@ def register():
         g.user = db.execute(
             'SELECT * FROM users WHERE id IN (:id)', {"id": user_id, }
         ).fetchone()
-
-        db.close()
 
         # change to redirect to current page
         return render_template("index.html")
@@ -121,8 +116,6 @@ def register():
             ).fetchone()
             '''
 
-            db.close()
-
             success = 'Thank You For Signing Up.'
 
             # Change to redirect to curent page
@@ -144,8 +137,7 @@ def login():
         g.user = db.execute(
             'SELECT * FROM users WHERE id IN (:id)', {"id": user_id, }
         ).fetchone()
-        db.close()
-
+        
         # change to redirect to current page
         return render_template("index.html", error=error)
 
@@ -212,15 +204,14 @@ def search():
             'SELECT * FROM users WHERE id IN (:id)', {"id": user_id, }
         ).fetchone()
 
-        db.close()
-
+  
     if request.method == 'POST':
 
         if request.form.get('b_title', None):
             b_title = request.form['b_title']
             books = db.execute(
                 "SELECT * FROM books WHERE title ILIKE ('%' || :title || '%') ORDER BY title ASC", {"title": b_title, }).fetchall()
-            db.close()
+           
             if books is None:
                 error = "No Such Title"
             return render_template("search.html", books=books, error=error, book=book)
@@ -229,7 +220,7 @@ def search():
             b_author = request.form['b_author']
             books = db.execute(
                 "SELECT * FROM books WHERE author ILIKE ('%' || :author || '%') ORDER BY title ASC", {"author": b_author, }).fetchall()
-            db.close()
+          
             if books is None:
                 error = "No Such Author"
             return render_template("search.html", books=books, error=error, book=book)
@@ -238,7 +229,7 @@ def search():
             b_isbn = request.form['b_isbn']
             books = db.execute(
                 "SELECT * FROM books WHERE isbn ILIKE ('%' || :isbn || '%') ORDER BY title ASC", {"isbn": b_isbn, }).fetchall()
-            db.close()
+        
             if books is None:
                 error = "No Such isbn #"
             return render_template("search.html", books=books, error=error, book=book)
@@ -247,7 +238,7 @@ def search():
 
             books = db.execute(
                 'SELECT * FROM (SELECT * FROM books ORDER BY random() LIMIT 9) TB ORDER BY title ASC').fetchall()
-            db.close()
+        
 
             return render_template("search.html", books=books, error=error)
 
@@ -280,9 +271,7 @@ def book(b_title):
         g.user = db.execute(
             'SELECT * FROM users WHERE id IN (:id)', {"id": user_id, }
         ).fetchone()
-
-        db.close()
-
+      
         # book = db.execute('SELECT * FROM books WHERE title = :title', {"title": b_title,}).fetchone()
         book = db.execute('SELECT title, author, isbn, year, round(avg(rating), 1), count(rating) from books left join reviews on isbn = rbook_isbn where title IN (:title) group by title, author, isbn, year', {
                           "title": b_title, }).fetchone()
@@ -320,8 +309,6 @@ def create():
 
         g.user = db.execute(
             'SELECT * FROM users WHERE id IN (:id)', {"id": user_id, }).fetchone()
-
-        db.close()
 
         if request.method == 'POST':
 
