@@ -65,6 +65,8 @@ def register():
     """
     error = None
 
+    success = None
+
     user_id = session.get('user_id')
 
     if ('user_id' in session):
@@ -117,12 +119,14 @@ def register():
             'SELECT * FROM users WHERE id = :id', {"id": user_id,}
             ).fetchone()
             db.close()
+            
+            success = 'Thank You For Signing Up.'
 
             # Change to redirect to curent page
             return redirect(url_for('index'))
         
 
-    return render_template('auth/register.html', book=book, error=error)
+    return render_template('auth/register.html', book=book, error=error, success=success)
 
 
 
@@ -134,6 +138,8 @@ def login():
     """Log in a registered user by adding the user id to the session."""
     
     error = None 
+
+    success = None
 
     user_id = session.get('user_id')
     if ('user_id' in session):
@@ -167,11 +173,13 @@ def login():
             ).fetchone()
             db.close()
 
+            success = 'Your Now Signed In.'
+
             return redirect(url_for('index'))
 
         
         
-    return render_template('auth/login.html', book=book, error=error)
+    return render_template('auth/login.html', book=book, error=error, success=success)
     
 
 
@@ -179,10 +187,16 @@ def login():
 
 @app.route('/logout')
 def logout():
+
+    success = None
+
     """Clear the current session, including the stored user id."""
     session.clear()
     g.user = None
-    return redirect(url_for('index'))
+
+    success = 'Your Now Loged Out.'
+
+    return redirect(url_for('index', success=success))
 
 
 
@@ -225,32 +239,33 @@ def search():
         else:
             books = db.execute('SELECT * FROM books ORDER BY random() LIMIT 9').fetchall()
             db.close()
+
             return render_template("search.html", books=books ,error=error)
-        
-    books = db.execute('SELECT * FROM books ORDER BY random() LIMIT 9').fetchall()
-    db.close()
 
-    return render_template("search.html", books=books, error=error, book=book)
-
-'''
-
-if (not 'user_id' in session):
+    if (not 'user_id' in session):
         g.user = None
 
+            
+        # book = db.execute('SELECT * FROM books WHERE title = :title', {"title": b_title,}).fetchone()
+        books = db.execute('SELECT * FROM books ORDER BY random() LIMIT 9').fetchall()
         
-        book = db.execute('SELECT * FROM books WHERE title = :title', {"title": b_title,}).fetchone()
-        #books = db.execute('SELECT * FROM books ORDER BY random() LIMIT 9').fetchall()
-    
         return render_template("search.html", book=book, books=books, error=error)
 
 
     else:
         g.user = db.execute(    
-            'SELECT * FROM users WHERE id = :id', {"id": user_id,}
-        ).fetchone()
+                'SELECT * FROM users WHERE id = :id', {"id": user_id,}
+            ).fetchone()
 
         db.close()
-'''
+
+        # book = db.execute('SELECT * FROM books WHERE title = :title', {"title": b_title,}).fetchone()
+        books = db.execute('SELECT * FROM books ORDER BY random() LIMIT 9').fetchall()
+        
+
+        return render_template("search.html", books=books, error=error, book=book)
+
+
 
 
 @app.route('/book/<string:b_title>' )
@@ -289,34 +304,35 @@ def book(b_title):
 
 @app.route('/create', methods=['GET', 'POST'])
 def create():
+    
     error = None
+
+    success = None
 
     book = None
 
     """Check to see if User is in session."""
 
-    user_id = session.get('user_id')
-
     if (not 'user_id' in session):
         g.user = None
+        
 
         return render_template("bookpage.html", error=error, book=book)
-  
     
-    if ('b_title' in session):
 
+    else:
+
+        user_id = session.get('user_id')
+        
         b_title = session.get('b_title')
 
         # book = db.execute('SELECT * FROM books WHERE title = :title', {"title": b_title,}).fetchone() 
         book = db.execute('SELECT title, author, isbn, year, round(avg(rating), 1), count(rating) from books left join reviews on isbn = rbook_isbn where title = :title group by title, author, isbn, year', {"title": b_title,}).fetchone()
 
-        g.user = db.execute(    
-            'SELECT * FROM users WHERE id = :id', {"id": user_id,}
-        ).fetchone()
+        g.user = db.execute('SELECT * FROM users WHERE id = :id', {"id": user_id,}).fetchone()
 
         db.close()
-
-        
+    
         if request.method == 'POST':
 
             rating = request.form['radio']
@@ -327,26 +343,33 @@ def create():
             error = None
 
             # check to see if user id is in the review for that book
-            
+                
             if error is None:
 
                 user_review = db.execute("SELECT * FROM reviews WHERE review_user_id = :review_user_id AND rbook_isbn = :rbook_isbn", {"review_user_id": review_user_id, "rbook_isbn": rbook_isbn}).fetchone()
-        
+            
 
                 if user_review is not None:
 
                     error = 'You have already Reviewed this Book.'
 
-                    # Insert Values into Database 
+                
                 else:    
 
                     db.execute("INSERT INTO reviews (rating, review_text, review_user_id, rbook_isbn) VALUES (:rating, :review_text, :review_user_id, :rbook_isbn)",
-                        {"rating": rating, "review_text": review_text, "review_user_id": review_user_id, "rbook_isbn": rbook_isbn})
+                            {"rating": rating, "review_text": review_text, "review_user_id": review_user_id, "rbook_isbn": rbook_isbn})
                     db.commit()
- 
-                    return render_template("bookpage.html", error=error, book=book)       
+
+                    success = 'Great Review!!!'
+
+                    book = db.execute('SELECT title, author, isbn, year, round(avg(rating), 1), count(rating) from books left join reviews on isbn = rbook_isbn where title = :title group by title, author, isbn, year', {"title": b_title,}).fetchone()
+
+    
+                    return render_template("bookpage.html", error=error, book=book, success=success)       
         
-            
+    
+    
+
         return render_template("bookpage.html", error=error, book=book)
    
     

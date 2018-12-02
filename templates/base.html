@@ -128,16 +128,25 @@
       <h2>Review App</h2>
       <p class="lead">Pick A Book</p>
       {% if not g.user %}
-      <p><a class="btn btn-lg btn-danger" href="{{ url_for('register') }}" role="button">Sign up NOW!</a>
+      <p><a class="btn btn-lg btn-success" href="{{ url_for('register') }}" role="button">Sign up NOW!</a>
       </p>
       {% endif %}
     </div>
 
     {% if error %}
 
-    {{error}}
+    <h3>{{error}}</h3>
 
     {% endif %}
+
+
+    {% if success %}
+
+    <h3>{{success}}</h3>
+
+    {% endif %}
+
+
 
 
     {% block content %}{% endblock %}
