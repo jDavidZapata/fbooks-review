@@ -2,7 +2,7 @@
 #from flask.ext.login import login_user , logout_user , current_user , login_required
 
 from flask import Flask, flash, redirect, render_template, request, session, abort, redirect, url_for, g, jsonify
-import os
+import os, requests
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 
@@ -17,7 +17,9 @@ if not os.getenv("DATABASE_URL"):
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 # Session(app)
+
 app.secret_key = b'_3#y2L"F4Q8z\n\xec]/'
+
 
 # Set up database
 engine = create_engine(os.getenv("DATABASE_URL"))
@@ -46,7 +48,7 @@ def index():
         g.user = db.execute(
             'SELECT * FROM users WHERE id IN (:id)', {"id": user_id, }
         ).fetchone()
-        
+
         return render_template("index.html", books=books, error=error, book=book)
 
 
@@ -137,7 +139,7 @@ def login():
         g.user = db.execute(
             'SELECT * FROM users WHERE id IN (:id)', {"id": user_id, }
         ).fetchone()
-        
+
         # change to redirect to current page
         return render_template("index.html", error=error)
 
@@ -204,14 +206,13 @@ def search():
             'SELECT * FROM users WHERE id IN (:id)', {"id": user_id, }
         ).fetchone()
 
-  
     if request.method == 'POST':
 
         if request.form.get('b_title', None):
             b_title = request.form['b_title']
             books = db.execute(
                 "SELECT * FROM books WHERE title ILIKE ('%' || :title || '%') ORDER BY title ASC", {"title": b_title, }).fetchall()
-           
+
             if books is None:
                 error = "No Such Title"
             return render_template("search.html", books=books, error=error, book=book)
@@ -220,7 +221,7 @@ def search():
             b_author = request.form['b_author']
             books = db.execute(
                 "SELECT * FROM books WHERE author ILIKE ('%' || :author || '%') ORDER BY title ASC", {"author": b_author, }).fetchall()
-          
+
             if books is None:
                 error = "No Such Author"
             return render_template("search.html", books=books, error=error, book=book)
@@ -229,7 +230,7 @@ def search():
             b_isbn = request.form['b_isbn']
             books = db.execute(
                 "SELECT * FROM books WHERE isbn ILIKE ('%' || :isbn || '%') ORDER BY title ASC", {"isbn": b_isbn, }).fetchall()
-        
+
             if books is None:
                 error = "No Such isbn #"
             return render_template("search.html", books=books, error=error, book=book)
@@ -238,7 +239,6 @@ def search():
 
             books = db.execute(
                 'SELECT * FROM (SELECT * FROM books ORDER BY random() LIMIT 9) TB ORDER BY title ASC').fetchall()
-        
 
             return render_template("search.html", books=books, error=error)
 
@@ -271,12 +271,27 @@ def book(b_title):
         g.user = db.execute(
             'SELECT * FROM users WHERE id IN (:id)', {"id": user_id, }
         ).fetchone()
-      
+
         # book = db.execute('SELECT * FROM books WHERE title = :title', {"title": b_title,}).fetchone()
         book = db.execute('SELECT title, author, isbn, year, round(avg(rating), 1), count(rating) from books left join reviews on isbn = rbook_isbn where title IN (:title) group by title, author, isbn, year', {
                           "title": b_title, }).fetchone()
 
+        res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": "KEY", "isbns": "1401215815"})
+        
+        data = res.json()
+
+        goodr_review_count = data['books']['work_ratings_count']
+
+        goodr_review_rating = data['books']['average_rating']
+
         session['b_title'] = b_title
+
+        session['book'] = book
+        
+        book['goodr_review_count'] = goodr_review_count
+
+        book['goodr_review_rating'] = goodr_review_rating
+
 
         return render_template("bookpage.html", book=book, error=error)
 
@@ -301,11 +316,15 @@ def create():
 
         user_id = session.get('user_id')
 
+        book = session.get('book')
+
+        '''
         b_title = session.get('b_title')
 
         # book = db.execute('SELECT * FROM books WHERE title = :title', {"title": b_title,}).fetchone()
         book = db.execute('SELECT title, author, isbn, year, round(avg(rating), 1), count(rating) from books left join reviews on isbn = rbook_isbn where title IN (:title) group by title, author, isbn, year', {
                           "title": b_title, }).fetchone()
+        '''
 
         g.user = db.execute(
             'SELECT * FROM users WHERE id IN (:id)', {"id": user_id, }).fetchone()
@@ -348,15 +367,14 @@ def create():
 
 @app.route('/api/book/<isbn>', methods=['GET', 'POST'])
 def book_api(isbn):
-    
     """Return details about a single book."""
 
     # Make sure book exists.
     book = db.execute('SELECT title, author, isbn, year, round(avg(rating), 1), count(rating) from books left join reviews on isbn = rbook_isbn where isbn IN (:isbn) group by title, author, isbn, year', {
-                          "isbn": isbn, }).fetchone()
+        "isbn": isbn, }).fetchone()
     if book is None:
         return jsonify({"error": "Invalid isbn"}), 422
-        
+
     # Get all review values.
     return jsonify({
         "title": book.title,
@@ -365,7 +383,7 @@ def book_api(isbn):
         "isbn": book.isbn,
         "review_count": book.count,
         "average_score": str(book.round),
-        #"reviews": text
+        # "reviews": text
     })
 
 
@@ -378,8 +396,6 @@ def book_api(isbn):
     for review in reviews:
         text.append(review.review_text)
 '''
-
-    
 
 
 if __name__ == "__main__":
