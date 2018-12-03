@@ -280,9 +280,11 @@ def book(b_title):
         
         data = res.json()
 
-        goodr_review_count = data['books']['work_ratings_count']
+        data = 
 
-        goodr_review_rating = data['books']['average_rating']
+        goodr_review_count = data['books'][0]['work_ratings_count']
+
+        goodr_review_rating = data['books'][0]['average_rating']
 
         session['b_title'] = b_title
 
