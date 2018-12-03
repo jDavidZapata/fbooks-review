@@ -9,7 +9,7 @@
 
 <div class="col-12 col-sm-6 col-lg-8 col-md-8 bg-dark left">
     <h2><span class="badge badge-danger">Book Result:</span></h2>
-    <div class="row justify-content-end">
+    <div class="row justify-content-around">
         {% if book %}
 
         <div class="col-lg-5 col-md-5 ">
@@ -40,12 +40,12 @@
         </div>
 
         <div class="col-lg-5 col-md-5">
-            <h3><span class="badge badge-pill badge-light">Reviews From GoodReads: </span></h3>
+            <h3><span class="badge badge-pill badge-light">GoodReads Reviews: </span></h3>
             <h4><a href="#" class="badge badge-warning">{{book.goodr_review_count}}</a></h4>
         </div>
 
         <div class="col-lg-5 col-md-5">
-            <h3><span class="badge badge-pill badge-light">Rating From GoodReads: </span></h3>
+            <h3><span class="badge badge-pill badge-light">GoodReads Rating: </span></h3>
             <h4><a href="#" class="badge badge-warning">{{book.goodr_review_rating}}</a></h4>
         </div>
 

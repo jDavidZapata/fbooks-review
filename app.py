@@ -213,17 +213,20 @@ def search():
             books = db.execute(
                 "SELECT * FROM books WHERE title ILIKE ('%' || :title || '%') ORDER BY title ASC", {"title": b_title, }).fetchall()
 
-            if books is None:
-                error = "No Such Title"
+            if not books:
+                error = 'No Such Title'
             return render_template("search.html", books=books, error=error, book=book)
 
         elif request.form.get('b_author', None):
             b_author = request.form['b_author']
             books = db.execute(
                 "SELECT * FROM books WHERE author ILIKE ('%' || :author || '%') ORDER BY title ASC", {"author": b_author, }).fetchall()
+            
+        
 
-            if books is None:
-                error = "No Such Author"
+            if not books:
+                error = 'No Such Author'
+                return render_template("search.html", books=books, error=error, book=book)
             return render_template("search.html", books=books, error=error, book=book)
 
         elif request.form.get('b_isbn', None):
@@ -231,8 +234,8 @@ def search():
             books = db.execute(
                 "SELECT * FROM books WHERE isbn ILIKE ('%' || :isbn || '%') ORDER BY title ASC", {"isbn": b_isbn, }).fetchall()
 
-            if books is None:
-                error = "No Such isbn #"
+            if not books:
+                error = 'No Such isbn #'
             return render_template("search.html", books=books, error=error, book=book)
 
         else:
@@ -261,7 +264,7 @@ def book(b_title):
     if (not 'user_id' in session):
         g.user = None
 
-        book = db.execute('SELECT title, author, isbn, year, round(avg(rating), 1), count(rating) from books left join reviews on isbn = rbook_isbn where title IN (:title) group by title, author, isbn, year', {
+        book = db.execute('SELECT title, author, isbn, year, round(avg(rating), 2), count(rating) from books left join reviews on isbn = rbook_isbn where title IN (:title) group by title, author, isbn, year', {
                           "title": b_title, }).fetchone()
 
         return render_template("bookpage.html", book=book, error=error)
@@ -271,13 +274,17 @@ def book(b_title):
             'SELECT * FROM users WHERE id IN (:id)', {"id": user_id, }
         ).fetchone()
 
-        book = db.execute('SELECT title, author, isbn, year, round(avg(rating), 1), count(rating) from books left join reviews on isbn = rbook_isbn where title IN (:title) group by title, author, isbn, year', {
+        book = db.execute('SELECT title, author, isbn, year, round(avg(rating), 2), count(rating) from books left join reviews on isbn = rbook_isbn where title IN (:title) group by title, author, isbn, year', {
                           "title": b_title, }).fetchone()
         
         b_isbn = book['isbn']
 
         res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": "KEY", "isbns": b_isbn})
         
+        if res.status_code != 200:
+            raise Exception("ERROR: API request unsuccessful.")
+        
+       
         data = res.json()
 
         # Take values out of data
@@ -288,16 +295,15 @@ def book(b_title):
 
         session['b_title'] = b_title 
        
-        d, a = {}, []
+        b, a = {}, []
 
         for tup in book.items():
             # book.items() returns an array like [(key0, value0), (key1, value1)]
             # build up the dictionary           
-            d = {**d, **{tup[0]: tup[1]}}
-        a.append(d)
-    
-       
-        book = d
+            b = {**b, **{tup[0]: tup[1]}}
+            
+           
+        book = b
         
                 
         book['goodr_review_count'] = goodr_review_count
@@ -334,11 +340,12 @@ def create():
 
         book = session.get('book')
 
-        '''
         b_title = session.get('b_title')
 
+        '''
+        
         # book = db.execute('SELECT * FROM books WHERE title = :title', {"title": b_title,}).fetchone()
-        book = db.execute('SELECT title, author, isbn, year, round(avg(rating), 1), count(rating) from books left join reviews on isbn = rbook_isbn where title IN (:title) group by title, author, isbn, year', {
+        book = db.execute('SELECT title, author, isbn, year, round(avg(rating), 2), count(rating) from books left join reviews on isbn = rbook_isbn where title IN (:title) group by title, author, isbn, year', {
                           "title": b_title, }).fetchone()
         '''
 
@@ -350,7 +357,7 @@ def create():
             rating = request.form['radio']
             review_text = request.form['reviewtext']
             review_user_id = user_id
-            rbook_isbn = book.isbn
+            rbook_isbn = book['isbn']
 
             error = None
 
@@ -373,7 +380,9 @@ def create():
 
                     success = 'Great Review!!!'
 
-                    book = db.execute('SELECT title, author, isbn, year, round(avg(rating), 1), count(rating) from books left join reviews on isbn = rbook_isbn where title IN (:title) group by title, author, isbn, year', {
+
+
+                    book = db.execute('SELECT title, author, isbn, year, round(avg(rating), 2), count(rating) from books left join reviews on isbn = rbook_isbn where title IN (:title) group by title, author, isbn, year', {
                                       "title": b_title, }).fetchone()
 
                     return render_template("bookpage.html", error=error, book=book, success=success)
@@ -386,10 +395,10 @@ def book_api(isbn):
     """Return details about a single book."""
 
     # Make sure book exists.
-    book = db.execute('SELECT title, author, isbn, year, round(avg(rating), 1), count(rating) from books left join reviews on isbn = rbook_isbn where isbn IN (:isbn) group by title, author, isbn, year', {
+    book = db.execute('SELECT title, author, isbn, year, round(avg(rating), 2), count(rating) from books left join reviews on isbn = rbook_isbn where isbn IN (:isbn) group by title, author, isbn, year', {
         "isbn": isbn, }).fetchone()
     if book is None:
-        return jsonify({"error": "Invalid isbn"}), 422
+        return jsonify({"error": "Invalid isbn"}), 404
 
     # Get all review values.
     return jsonify({
