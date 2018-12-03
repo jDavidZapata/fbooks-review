@@ -1,7 +1,7 @@
 
 #from flask.ext.login import login_user , logout_user , current_user , login_required
 
-from flask import Flask, flash, redirect, render_template, request, session, abort, redirect, url_for, g
+from flask import Flask, flash, redirect, render_template, request, session, abort, redirect, url_for, g, jsonify
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
@@ -346,22 +346,40 @@ def create():
         return render_template("bookpage.html", error=error, book=book)
 
 
-@app.route('/api/<isbn>', methods=['GET', 'POST'])
-def api(isbn):
-    if request.method == 'GET':
+@app.route('/api/book/<isbn>', methods=['GET', 'POST'])
+def book_api(isbn):
+    
+    """Return details about a single book."""
 
-        '''
-        make jason response
+    # Make sure book exists.
+    book = db.execute('SELECT title, author, isbn, year, round(avg(rating), 1), count(rating) from books left join reviews on isbn = rbook_isbn where isbn IN (:isbn) group by title, author, isbn, year', {
+                          "isbn": isbn, }).fetchone()
+    if book is None:
+        return jsonify({"error": "Invalid isbn"}), 422
+        
+    # Get all review values.
+    return jsonify({
+        "title": book.title,
+        "author": book.author,
+        "year": book.year,
+        "isbn": book.isbn,
+        "review_count": book.count,
+        "average_score": str(book.round),
+        #"reviews": text
+    })
 
-        {
-        "title": "Memory",
-        "author": "Doug Lloyd",
-        "year": 2015,
-        "isbn": "1632168146",
-        "review_count": 28,
-        "average_score": 5.0
-        }
-        '''
+
+'''
+    # Execute query to get the review text from each review
+    reviews= book.review_text
+    
+    text = []
+
+    for review in reviews:
+        text.append(review.review_text)
+'''
+
+    
 
 
 if __name__ == "__main__":
