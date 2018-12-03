@@ -2,7 +2,7 @@
 #from flask.ext.login import login_user , logout_user , current_user , login_required
 
 from flask import Flask, flash, redirect, render_template, request, session, abort, redirect, url_for, g, jsonify
-import os, requests
+import os, requests, json
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 
@@ -261,7 +261,6 @@ def book(b_title):
     if (not 'user_id' in session):
         g.user = None
 
-        #book = db.execute('SELECT * FROM books WHERE title = :title', {"title": b_title,}).fetchone()
         book = db.execute('SELECT title, author, isbn, year, round(avg(rating), 1), count(rating) from books left join reviews on isbn = rbook_isbn where title IN (:title) group by title, author, isbn, year', {
                           "title": b_title, }).fetchone()
 
@@ -272,27 +271,42 @@ def book(b_title):
             'SELECT * FROM users WHERE id IN (:id)', {"id": user_id, }
         ).fetchone()
 
-        # book = db.execute('SELECT * FROM books WHERE title = :title', {"title": b_title,}).fetchone()
         book = db.execute('SELECT title, author, isbn, year, round(avg(rating), 1), count(rating) from books left join reviews on isbn = rbook_isbn where title IN (:title) group by title, author, isbn, year', {
                           "title": b_title, }).fetchone()
+        
+        b_isbn = book['isbn']
 
-        res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": "KEY", "isbns": "1401215815"})
+        res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": "KEY", "isbns": b_isbn})
         
         data = res.json()
 
-        data = 
-
+        # Take values out of data
         goodr_review_count = data['books'][0]['work_ratings_count']
 
         goodr_review_rating = data['books'][0]['average_rating']
 
-        session['b_title'] = b_title
 
-        session['book'] = book
+        session['b_title'] = b_title 
+       
+        d, a = {}, []
+
+        for tup in book.items():
+            # book.items() returns an array like [(key0, value0), (key1, value1)]
+            # build up the dictionary           
+            d = {**d, **{tup[0]: tup[1]}}
+        a.append(d)
+    
+       
+        book = d
         
+                
         book['goodr_review_count'] = goodr_review_count
 
+
         book['goodr_review_rating'] = goodr_review_rating
+        
+
+        session['book'] = book
 
 
         return render_template("bookpage.html", book=book, error=error)
