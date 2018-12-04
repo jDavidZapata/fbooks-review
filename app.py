@@ -279,7 +279,7 @@ def book(b_title):
         
         b_isbn = book['isbn']
 
-        res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": "Q34myL0Dt3PWGCU73EGqJA", "isbns": b_isbn})
+        res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": os.getenv("API_KEY"), "isbns": b_isbn})
         
         if res.status_code != 200:
             raise Exception("ERROR: API request unsuccessful.")
@@ -293,7 +293,7 @@ def book(b_title):
         goodr_review_rating = data['books'][0]['average_rating']
 
 
-        session['b_title'] = b_title 
+         
        
         b, a = {}, []
 
@@ -311,7 +311,7 @@ def book(b_title):
 
         book['goodr_review_rating'] = goodr_review_rating
         
-
+        session['b_title'] = b_title
         session['book'] = book
 
 
@@ -359,8 +359,7 @@ def create():
             review_user_id = user_id
             rbook_isbn = book['isbn']
 
-            error = None
-
+            
             # check to see if user id is in the review for that book
 
             if error is None:
@@ -380,10 +379,11 @@ def create():
 
                     success = 'Great Review!!!'
 
+                    session['book'] = book
 
 
-                    book = db.execute('SELECT title, author, isbn, year, round(avg(rating), 2), count(rating) from books left join reviews on isbn = rbook_isbn where title IN (:title) group by title, author, isbn, year', {
-                                      "title": b_title, }).fetchone()
+                    #book = db.execute('SELECT title, author, isbn, year, round(avg(rating), 2), count(rating) from books left join reviews on isbn = rbook_isbn where title IN (:title) group by title, author, isbn, year', {
+                                      #"title": b_title, }).fetchone()
 
                     return render_template("bookpage.html", error=error, book=book, success=success)
 
