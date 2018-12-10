@@ -264,7 +264,7 @@ def book(b_title):
     if (not 'user_id' in session):
         g.user = None
 
-        book = db.execute('SELECT title, author, isbn, year, round(avg(rating), 2), count(rating) from books left join reviews on isbn = rbook_isbn where title IN (:title) group by title, author, isbn, year', {
+        book = db.execute('SELECT title, author, isbn, year, round(avg(rating), 2), count(rating) from books left join reviews on isbn = rbook_isbn WHERE title IN (:title) GROUP BY title, author, isbn, year', {
                           "title": b_title, }).fetchone()
 
         return render_template("bookpage.html", book=book, error=error)
@@ -274,11 +274,39 @@ def book(b_title):
             'SELECT * FROM users WHERE id IN (:id)', {"id": user_id, }
         ).fetchone()
 
-        book = db.execute('SELECT title, author, isbn, year, round(avg(rating), 2), count(rating) from books left join reviews on isbn = rbook_isbn where title IN (:title) group by title, author, isbn, year', {
+        book = db.execute('SELECT title, author, isbn, year, round(avg(rating), 2), count(rating) from books left join reviews on isbn = rbook_isbn WHERE title IN (:title) GROUP BY title, author, isbn, year', {
                           "title": b_title, }).fetchone()
         
-        b_isbn = book['isbn']
+        b, a = {}, []
 
+        for tup in book.items():
+            # book.items() returns an array like [(key0, value0), (key1, value1)]
+            # build up the dictionary           
+            b = {**b, **{tup[0]: tup[1]}}
+            
+           
+        book = b
+
+        b_isbn = book['isbn']
+        
+        reviews = db.execute('SELECT * FROM reviews WHERE rbook_isbn IN (:rbook_isbn)', {"rbook_isbn": b_isbn, }).fetchall()
+        
+        print(reviews)
+
+        '''
+        r = {}
+        for review in reviews:
+            # reviews.items() returns an array like [(key0, value0), (key1, value1)]
+            # build up the dictionary           
+            r = {**r, **{tup[0]: tup[1]}}
+            print(r)
+ 
+        reviews = r
+
+        print(r)
+
+        '''
+        
         res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": os.getenv("API_KEY"), "isbns": b_isbn})
         
         if res.status_code != 200:
@@ -292,30 +320,19 @@ def book(b_title):
 
         goodr_review_rating = data['books'][0]['average_rating']
 
-
-         
-       
-        b, a = {}, []
-
-        for tup in book.items():
-            # book.items() returns an array like [(key0, value0), (key1, value1)]
-            # build up the dictionary           
-            b = {**b, **{tup[0]: tup[1]}}
-            
-           
-        book = b
-        
-                
+                    
         book['goodr_review_count'] = goodr_review_count
-
 
         book['goodr_review_rating'] = goodr_review_rating
         
         session['b_title'] = b_title
         session['book'] = book
+        session['reviews'] = reviews   
+
+        print('this') 
 
 
-        return render_template("bookpage.html", book=book, error=error)
+        return render_template("bookpage.html", book=book, error=error, reviews=reviews)
 
 
 @app.route('/create', methods=['GET', 'POST'])
@@ -342,10 +359,12 @@ def create():
 
         b_title = session.get('b_title')
 
+
+
         '''
         
         # book = db.execute('SELECT * FROM books WHERE title = :title', {"title": b_title,}).fetchone()
-        book = db.execute('SELECT title, author, isbn, year, round(avg(rating), 2), count(rating) from books left join reviews on isbn = rbook_isbn where title IN (:title) group by title, author, isbn, year', {
+        book = db.execute('SELECT title, author, isbn, year, round(avg(rating), 2), count(rating), review_text from books left join reviews on isbn = rbook_isbn where title IN (:title) group by title, author, isbn, year', {
                           "title": b_title, }).fetchone()
         '''
 
@@ -392,24 +411,28 @@ def create():
 
 @app.route('/api/book/<isbn>', methods=['GET', 'POST'])
 def book_api(isbn):
-    """Return details about a single book."""
+    
+    if request.method == 'GET':
+        """Return details about a single book."""
+        
+        # Make sure book exists.
+        book = db.execute('SELECT title, author, isbn, year, round(avg(rating), 2), count(rating) from books left join reviews on isbn = rbook_isbn where isbn IN (:isbn) group by title, author, isbn, year', {
+            "isbn": isbn, }).fetchone()
+        
+        if book is None:
+            return jsonify({"error": "Invalid isbn"}), 404
 
-    # Make sure book exists.
-    book = db.execute('SELECT title, author, isbn, year, round(avg(rating), 2), count(rating) from books left join reviews on isbn = rbook_isbn where isbn IN (:isbn) group by title, author, isbn, year', {
-        "isbn": isbn, }).fetchone()
-    if book is None:
-        return jsonify({"error": "Invalid isbn"}), 404
-
-    # Get all review values.
-    return jsonify({
-        "title": book.title,
-        "author": book.author,
-        "year": book.year,
-        "isbn": book.isbn,
-        "review_count": book.count,
-        "average_score": str(book.round),
-        # "reviews": text
-    })
+        # Get all review values.
+        print('That')
+        return jsonify({
+            "title": book.title,
+            "author": book.author,
+            "year": book.year,
+            "isbn": book.isbn,
+            "review_count": book.count,
+            "average_score": str(book.round),
+            # "reviews": text
+        })
 
 
 '''
