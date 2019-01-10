@@ -130,6 +130,9 @@
       {% if not g.user %}
       <p><a class="btn btn-lg btn-success" href="{{ url_for('register') }}" role="button">Sign up NOW!</a>
       </p>
+      {% else %}
+      <p><a class="btn btn-lg btn-success" href="{{ url_for('my_books') }}" role="button">My Books!</a>
+      </p>
       {% endif %}
     </div>
 

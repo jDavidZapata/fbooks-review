@@ -277,7 +277,7 @@ def book(b_title):
         book = db.execute('SELECT title, author, isbn, year, round(avg(rating), 2), count(rating) from books left join reviews on isbn = rbook_isbn WHERE title IN (:title) GROUP BY title, author, isbn, year', {
                           "title": b_title, }).fetchone()
         
-        b, a = {}, []
+        b = {}
 
         for tup in book.items():
             # book.items() returns an array like [(key0, value0), (key1, value1)]
@@ -291,21 +291,23 @@ def book(b_title):
         
         reviews = db.execute('SELECT * FROM reviews WHERE rbook_isbn IN (:rbook_isbn)', {"rbook_isbn": b_isbn, }).fetchall()
         
+        
         print(reviews)
 
-        '''
-        r = {}
-        for review in reviews:
-            # reviews.items() returns an array like [(key0, value0), (key1, value1)]
-            # build up the dictionary           
-            r = {**r, **{tup[0]: tup[1]}}
-            print(r)
- 
-        reviews = r
+        
 
-        print(r)
 
-        '''
+        d, a = {}, []
+        for rowproxy in reviews:
+            # rowproxy.items() returns an array like [(key0, value0), (key1, value1)]
+            for tup in rowproxy.items():
+                # build up the dictionary
+                d = {**d, **{tup[0]: tup[1]}}
+            a.append(d)
+
+        print(a)
+
+        reviews = a
         
         res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": os.getenv("API_KEY"), "isbns": b_isbn})
         

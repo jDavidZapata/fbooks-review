@@ -113,11 +113,19 @@
 <div class="container-fluid content3">
     <div class="row">
     {% for review in reviews %}
-        <div class="col-lg-4 col-md-6 ">
-            <h2>*</h2>
-            <h3 class="badge badge-warning">Rating: {{review.rating}}</h3>
-            <h4 class="badge badge-danger">Text:{{review.text_review}}</h4>
-            <h4 class="badge badge-warning">User_id: {{review.review_user_id}}</h4>
+
+        <div class="col-lg-4 col-md-4">
+            <h3><span class="badge badge-pill badge-light">Review Rating: </span></h3>
+            <h4><a href="#" class="badge badge-warning">{{review.rating}}</a></h4>
+        </div>
+        
+        <div class="col-lg-4 col-md-4">
+            <h3><span class="badge badge-pill badge-light">Reviewer_id: </span></h3>
+            <h4><a href="#" class="badge badge-warning">{{review.review_user_id}}</a></h4>
+        </div>
+        <div class="col-lg-4 col-md-4">
+            <h3><span class="badge badge-pill badge-light">Review: </span></h3>
+            <h4><a href="#" class="badge badge-warning">{{review.review_text}}</a></h4>
         </div>
     {% endfor %}
     </div>
