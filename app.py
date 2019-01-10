@@ -437,6 +437,39 @@ def book_api(isbn):
         })
 
 
+@app.route('/my_books', methods=['GET', 'POST'])
+def my_books():
+
+    error = None
+
+    success = None
+
+    book = None
+
+    books = None
+
+    """Check to see if User is in session."""
+
+    if (not 'user_id' in session):
+        g.user = None
+
+        return render_template("index.html", error=error, book=book, books=books)
+
+    else:
+
+        user_id = session.get('user_id')
+
+        book = session.get('book')
+
+        b_title = session.get('b_title')
+
+        g.user = db.execute(
+            'SELECT * FROM users WHERE id IN (:id)', {"id": user_id, }).fetchone()
+
+        return render_template("my_books.html", error=error, book=book, success=success)
+
+
+
 '''
     # Execute query to get the review text from each review
     reviews= book.review_text
