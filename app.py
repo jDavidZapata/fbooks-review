@@ -295,8 +295,6 @@ def book(b_title):
         print(reviews)
 
         
-
-
         d, a = {}, []
         for rowproxy in reviews:
             # rowproxy.items() returns an array like [(key0, value0), (key1, value1)]
@@ -326,13 +324,15 @@ def book(b_title):
         book['goodr_review_count'] = goodr_review_count
 
         book['goodr_review_rating'] = goodr_review_rating
-        
+
+   
         session['b_title'] = b_title
         session['book'] = book
         session['reviews'] = reviews   
 
+        print(book)
+                
         print('this') 
-
 
         return render_template("bookpage.html", book=book, error=error, reviews=reviews)
 
@@ -426,6 +426,7 @@ def book_api(isbn):
 
         # Get all review values.
         print('That')
+        print(book)
         return jsonify({
             "title": book.title,
             "author": book.author,
@@ -435,6 +436,7 @@ def book_api(isbn):
             "average_score": str(book.round),
             # "reviews": text
         })
+
 
 
 @app.route('/my_books', methods=['GET', 'POST'])
