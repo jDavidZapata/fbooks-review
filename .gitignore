@@ -3,3 +3,4 @@ instance/
 .env
 instance/
 *.pyc
+.vscode
