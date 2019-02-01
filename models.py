@@ -12,7 +12,7 @@ class User(db.Model):
     name = db.Column(db.String, nullable=False)
     password = db.Column(db.String, nullable=False)
     email = db.Column(db.String, nullable=False, unique=True)
-    books = 
+    my_books = db.relationship("Mybook", backref="user", lazy=True)
 
     def __repr__(self):
         return '<User %r>' % self.name
@@ -20,6 +20,11 @@ class User(db.Model):
     def add_book(self, isbn, title, author, year):
         b = Book(isbn=isbn, title=title, author=author, year=year)
         db.session.add(b)
+        db.session.commit()
+
+    def add_my_book(self, user_id, book_isbn):
+        mb = Mybook(user_id=self.id, isbn=isbn)
+        db.session.add(mb)
         db.session.commit()
 
 
@@ -55,3 +60,8 @@ class Review(db.Model):
     def __repr__(self):
         return '<Review isbn # %r>' % self.rbook_isbn
 
+class Mybook(db.Model):
+    __tablename__ = "my_books"
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    isbn = db.Column(db.String, db.ForeignKey("books.isbn"), nullable=False)
