@@ -41,8 +41,8 @@ class Book(db.Model):
         return '<Book title: %r>' % self.title
 
 
-    def add_review(self, review_text, rating, review_user_id):
-        r = Review(review_text=review_text, rating=rating, review_user_id=review_user_id, rbook_isbn=self.isbn)
+    def add_review(self, review_text, rating, rbook_isbn, review_user_id):
+        r = Review(review_text=review_text, rating=rating, rbook_isbn=self.isbn, review_user_id=review_user_id)
         db.session.add(r)
         db.session.commit()
 
