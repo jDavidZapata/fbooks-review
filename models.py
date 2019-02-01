@@ -16,6 +16,11 @@ class User(db.Model):
     def __repr__(self):
         return '<User %r>' % self.name
 
+    def add_user(self, name, password, email):
+        u = User(name=name, password=password, email=email)
+        db.session.add(u)
+        db.session.commit()
+
 
 class Book(db.Model):
     __tablename__ = "books"
@@ -28,7 +33,7 @@ class Book(db.Model):
 
     def __repr__(self):
         return '<Book title: %r>' % self.title
-        
+
 
     def add_review(self, review_text, rating, review_user_id):
         r = Review(review_text=review_text, rating=rating, review_user_id=review_user_id, rbook_isbn=self.isbn)
