@@ -12,13 +12,14 @@ class User(db.Model):
     name = db.Column(db.String, nullable=False)
     password = db.Column(db.String, nullable=False)
     email = db.Column(db.String, nullable=False, unique=True)
+    books = 
 
     def __repr__(self):
         return '<User %r>' % self.name
 
-    def add_user(self, name, password, email):
-        u = User(name=name, password=password, email=email)
-        db.session.add(u)
+    def add_book(self, isbn, title, author, year):
+        b = Book(isbn=isbn, title=title, author=author, year=year)
+        db.session.add(b)
         db.session.commit()
 
 
