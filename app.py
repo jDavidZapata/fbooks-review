@@ -1,40 +1,40 @@
-
-#from flask.ext.login import login_user , logout_user , current_user , login_required
-
 from flask import Flask, flash, redirect, render_template, request, session, abort, redirect, url_for, g, jsonify
-import os, requests, json
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, scoped_session
+import requests, json
+from models import *
+
+## from flask.ext.login import login_user , logout_user , current_user , login_required
 
 app = Flask(__name__)
-
 
 # Check for environment variable
 if not os.getenv("DATABASE_URL"):
     raise RuntimeError("DATABASE_URL is not set")
 
+# Set up database
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+db.init_app(app)
+
+
 # Configure session to use filesystem
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
-# Session(app)
 
 app.secret_key = b'_3#y2L"F4Q8z\n\xec]/'
-
-
-# Set up database
-engine = create_engine(os.getenv("DATABASE_URL"))
-db = scoped_session(sessionmaker(bind=engine))
 
 
 @app.route("/", methods=["GET", "POST"])
 def index():
 
     error = None
-
     book = None
 
+    # Get 9 random books
+    books = Book.query.order_by(func.random()).limit(9).all()
+    '''
     books = db.execute(
         'SELECT * FROM (SELECT * FROM books ORDER BY random() LIMIT 9) TB ORDER BY title ASC').fetchall()
+    '''
 
     """Check to see if User is in session."""
 
@@ -45,9 +45,7 @@ def index():
 
         return render_template("index.html", books=books, error=error, book=book)
     else:
-        g.user = db.execute(
-            'SELECT * FROM users WHERE id IN (:id)', {"id": user_id, }
-        ).fetchone()
+        g.user = User.query.get(user_id)
 
         return render_template("index.html", books=books, error=error, book=book)
 
@@ -61,16 +59,13 @@ def register():
         #Hashes the password for security.
     """
     error = None
-
     success = None
 
     user_id = session.get('user_id')
 
     if ('user_id' in session):
 
-        g.user = db.execute(
-            'SELECT * FROM users WHERE id IN (:id)', {"id": user_id, }
-        ).fetchone()
+        g.user = User.query.get(user_id)
 
         # change to redirect to current page
         return render_template("index.html")
@@ -90,8 +85,12 @@ def register():
         elif not email:
             error = 'Email required.'
 
+        user = User.query.filter_by(email).first()###
+
+        '''
         user = db.execute("SELECT * FROM users WHERE email IN (:email)",
                           {"email": email}).fetchone()
+        '''
 
         if user is not None:
             error = 'User with email {0} is already registered.'.format(email)
@@ -99,12 +98,18 @@ def register():
         if error is None:
             """If the name is available, store it in the database and go to the login page"""
 
-            db.execute("INSERT INTO users (name, password, email) VALUES (:name, :password, :email)",
+            user = User(name=name, password=password, email=email)
+            db.session.add(user)
+            db.session.commit()
+
+            '''db.execute("INSERT INTO users (name, password, email) VALUES (:name, :password, :email)",
                        {"name": name, "password": password, "email": email})
             db.commit()
 
+
             user = db.execute("SELECT * FROM users WHERE email IN (:email)", {
                               "email": email}).fetchone()
+            '''
 
             """Store the user id in a new session and return to the index"""
 
@@ -112,16 +117,10 @@ def register():
             session['user_id'] = user['id']
             g.user = user
 
-            '''
-            g.user = db.execute(
-                'SELECT * FROM users WHERE id IN (:id)', {"id": user_id, }
-            ).fetchone()
-            '''
-
             success = 'Thank You For Signing Up.'
 
             # Change to redirect to curent page
-            return redirect(url_for('index'))
+            return redirect(url_for('index', success=success))
 
     return render_template('auth/register.html', book=book, error=error, success=success)
 
@@ -136,9 +135,13 @@ def login():
 
     user_id = session.get('user_id')
     if ('user_id' in session):
+        g.user = User.query.get(user_id)
+
+        '''
         g.user = db.execute(
             'SELECT * FROM users WHERE id IN (:id)', {"id": user_id, }
         ).fetchone()
+        '''
 
         # change to redirect to current page
         return render_template("index.html", error=error)
@@ -148,8 +151,12 @@ def login():
         password = request.form['password']
 
         error = None
-        user = db.execute("SELECT * FROM users WHERE email IN (:email) AND password IN (:password)",
+
+        user = User.query.filter(User.email = email, User.password = password).first() 
+
+        '''user = db.execute("SELECT * FROM users WHERE email IN (:email) AND password IN (:password)",
                           {"email": email, "password": password}).fetchone()
+        '''
 
         if user is None:
             error = 'Incorrect Email or Password.'
@@ -159,14 +166,18 @@ def login():
             """Store the user id in a new session and return to the index."""
             session.clear()
             session['user_id'] = user['id']
-            g.user = db.execute(
+
+            g.user = User.query.get(user_id)
+
+            '''g.user = db.execute(
                 'SELECT * FROM users WHERE id IN (:id)', {"id": user_id, }
             ).fetchone()
             db.close()
+            '''
 
             success = 'Your Now Signed In.'
 
-            return redirect(url_for('index'))
+            return redirect(url_for('index', success=success))
 
     return render_template('auth/login.html', book=book, error=error, success=success)
 
@@ -202,14 +213,18 @@ def search():
         g.user = None
 
     else:
+        g.user = User.query.get(user_id)
+        '''
         g.user = db.execute(
             'SELECT * FROM users WHERE id IN (:id)', {"id": user_id, }
         ).fetchone()
+        '''
 
     if request.method == 'POST':
 
         if request.form.get('b_title', None):
             b_title = request.form['b_title']
+
             books = db.execute(
                 "SELECT * FROM books WHERE title ILIKE ('%' || :title || '%') ORDER BY title ASC", {"title": b_title, }).fetchall()
 
@@ -270,10 +285,12 @@ def book(b_title):
         return render_template("bookpage.html", book=book, error=error)
 
     else:
+        g.user = User.query.get(user_id)
+        '''
         g.user = db.execute(
             'SELECT * FROM users WHERE id IN (:id)', {"id": user_id, }
         ).fetchone()
-
+        '''
         book = db.execute('SELECT title, author, isbn, year, round(avg(rating), 2), count(rating) from books left join reviews on isbn = rbook_isbn WHERE title IN (:title) GROUP BY title, author, isbn, year', {
                           "title": b_title, }).fetchone()
         
@@ -369,10 +386,11 @@ def create():
         book = db.execute('SELECT title, author, isbn, year, round(avg(rating), 2), count(rating), review_text from books left join reviews on isbn = rbook_isbn where title IN (:title) group by title, author, isbn, year', {
                           "title": b_title, }).fetchone()
         '''
-
+        g.user = User.query.get(user_id)
+        '''
         g.user = db.execute(
             'SELECT * FROM users WHERE id IN (:id)', {"id": user_id, }).fetchone()
-
+        '''
         if request.method == 'POST':
 
             rating = request.form['radio']
@@ -465,9 +483,11 @@ def my_books():
 
         b_title = session.get('b_title')
 
+        g.user = User.query.get(user_id)
+        '''
         g.user = db.execute(
             'SELECT * FROM users WHERE id IN (:id)', {"id": user_id, }).fetchone()
-
+        '''
         return render_template("my_books.html", error=error, book=book, success=success)
 
 
