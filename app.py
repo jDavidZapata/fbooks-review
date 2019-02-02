@@ -234,10 +234,12 @@ def search():
         """ Get books with title. """
         if request.form.get('b_title', None):
             b_title = request.form['b_title']
-            books = 
+
+            books = Book.query.filter(Book.title.like(%(b_title)%)).order_by(Book.title.asc()).all()
+            '''
             books = db.execute(
                 "SELECT * FROM books WHERE title ILIKE ('%' || :title || '%') ORDER BY title ASC", {"title": b_title, }).fetchall()
-
+            '''
             if not books:
                 error = 'No Such Title'
             return render_template("search.html", books=books, error=error, book=book)
@@ -245,10 +247,11 @@ def search():
         """ Get books with author. """
         elif request.form.get('b_author', None):
             b_author = request.form['b_author']
-            books = 
+            books = Book.query.filter(Book.author.like(%(b_author)%)).order_by(Book.title.asc()).all()
+            '''
             books = db.execute(
                 "SELECT * FROM books WHERE author ILIKE ('%' || :author || '%') ORDER BY title ASC", {"author": b_author, }).fetchall()
-            
+            '''
             if not books:
                 error = 'No Such Author'
             return render_template("search.html", books=books, error=error, book=book)
@@ -256,10 +259,11 @@ def search():
         """ Get books with isbn #. """
         elif request.form.get('b_isbn', None):
             b_isbn = request.form['b_isbn']
-            books = 
+            books = Book.query.filter(Book.isbn.like('%'b_isbn'%')).order_by(Book.title.asc()).all()
+            '''
             books = db.execute(
                 "SELECT * FROM books WHERE isbn ILIKE ('%' || :isbn || '%') ORDER BY title ASC", {"isbn": b_isbn, }).fetchall()
-
+            '''
             if not books:
                 error = 'No Such isbn #'
             return render_template("search.html", books=books, error=error, book=book)
