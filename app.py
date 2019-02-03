@@ -234,8 +234,8 @@ def search():
         """ Get books with title. """
         if request.form.get('b_title', None):
             b_title = request.form['b_title']
-
-            books = Book.query.filter(Book.title.like(%(b_title)%)).order_by(Book.title.asc()).all()
+            title = '%{}%'.format(b_title)
+            books = Book.query.filter(Book.title.ilike(title)).order_by(Book.title.asc()).all()
             '''
             books = db.execute(
                 "SELECT * FROM books WHERE title ILIKE ('%' || :title || '%') ORDER BY title ASC", {"title": b_title, }).fetchall()
@@ -247,7 +247,8 @@ def search():
         """ Get books with author. """
         elif request.form.get('b_author', None):
             b_author = request.form['b_author']
-            books = Book.query.filter(Book.author.like(%(b_author)%)).order_by(Book.title.asc()).all()
+            author = '%{}%'.format(b_author)
+            books = Book.query.filter(Book.author.ilike(author)).order_by(Book.title.asc()).all()
             '''
             books = db.execute(
                 "SELECT * FROM books WHERE author ILIKE ('%' || :author || '%') ORDER BY title ASC", {"author": b_author, }).fetchall()
@@ -259,7 +260,8 @@ def search():
         """ Get books with isbn #. """
         elif request.form.get('b_isbn', None):
             b_isbn = request.form['b_isbn']
-            books = Book.query.filter(Book.isbn.like('%'b_isbn'%')).order_by(Book.title.asc()).all()
+            isbn = '%{}%'.format(b_isbn)
+            books = Book.query.filter(Book.isbn.ilike('%'b_isbn'%')).order_by(Book.title.asc()).all()
             '''
             books = db.execute(
                 "SELECT * FROM books WHERE isbn ILIKE ('%' || :isbn || '%') ORDER BY title ASC", {"isbn": b_isbn, }).fetchall()
@@ -302,7 +304,8 @@ def book(b_title):
     if (not 'user_id' in session):
         g.user = None
 
-        book = 
+        book = Book.query.(title, author, isbn, year, round(avg(rating), 2), count(rating)).join(Reviews.filter(Book.isbn == Review.rbook_isbn)).filter(Book.title.in_(title).group_by()).all()
+        book = db.session.query(Book, Review).filter(Book.isbn == Review.rbook_isbn).filter(Book.title.in_(b_title).group_by().all()
         book = db.execute('SELECT title, author, isbn, year, round(avg(rating), 2), count(rating) from books left join reviews on isbn = rbook_isbn WHERE title IN (:title) GROUP BY title, author, isbn, year', {
                           "title": b_title, }).fetchone()
 
@@ -427,7 +430,7 @@ def create():
 
             if error is None:
 
-                user_review = Review.query.filter(Review.review_user_id.in_([review_user_id]), Review.rbook_isbn.in_([rbook_isbn])).all()
+                user_review = Review.query.filter(and_(Review.review_user_id.in_(review_user_id), Review.rbook_isbn.in_(rbook_isbn))).all()
                 '''
                 user_review = db.execute("SELECT * FROM reviews WHERE review_user_id IN (:review_user_id) AND rbook_isbn IN (:rbook_isbn)", {
                                          "review_user_id": review_user_id, "rbook_isbn": rbook_isbn}).fetchone()
