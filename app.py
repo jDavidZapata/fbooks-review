@@ -1,6 +1,8 @@
 from flask import Flask, flash, redirect, render_template, request, session, abort, redirect, url_for, g, jsonify
 import requests, json
 from models import *
+from  sqlalchemy.sql.expression import func
+from sqlalchemy import func, desc
 
 ## from flask.ext.login import login_user , logout_user , current_user , login_required
 
@@ -159,7 +161,7 @@ def login():
         error = None
 
         """ Get user from database. """
-        user = User.query.filter(User.email = email, User.password = password).first() 
+        user = User.query.filter(User.email.in_(email), User.password.in_(password)).first() 
 
         '''user = db.execute("SELECT * FROM users WHERE email IN (:email) AND password IN (:password)",
                           {"email": email, "password": password}).fetchone()
@@ -233,6 +235,7 @@ def search():
 
         """ Get books with title. """
         if request.form.get('b_title', None):
+
             b_title = request.form['b_title']
             title = '%{}%'.format(b_title)
             books = Book.query.filter(Book.title.ilike(title)).order_by(Book.title.asc()).all()
@@ -272,7 +275,8 @@ def search():
 
         """ Else get 9 random books. """
         else:
-            books = Book.query.order_by(func.random()).limit(9).all()
+            #  books = Book.query.order_by(func.random().limit(9)).all()
+            books = Book.query.order_by(func.random(Book.title).limit(9)).all()
             '''
             books = db.execute(
                 'SELECT * FROM (SELECT * FROM books ORDER BY random() LIMIT 9) TB ORDER BY title ASC').fetchall()
@@ -280,7 +284,10 @@ def search():
             return render_template("search.html", books=books, error=error)
 
     # book = db.execute('SELECT * FROM books WHERE title = :title', {"title": b_title,}).fetchone()
-    books = Book.query.order_by(func.random()).limit(9).all()
+    # book = Book.query.filter_by(title = b_title)
+
+    # books = Book.query.order_by(func.random().limit(9)).all()
+    books = Book.query.order_by(func.random(Book.title).limit(9)).all()
     '''
     books = db.execute(
         'SELECT * FROM (SELECT * FROM books ORDER BY random() LIMIT 9) TB ORDER BY title ASC').fetchall()
@@ -303,12 +310,16 @@ def book(b_title):
 
     if (not 'user_id' in session):
         g.user = None
+        '''
+        book = Book.query.(Book.title, Book.author, Book.isbn, Book.year, round(avg(Review.rating), 2), count(Review.rating)).join(Reviews.filter(Book.isbn == Review.rbook_isbn, Book.title.in_(b_title)).group_by(Book.title, Book.author, Book.isbn, Book.year)).first()
+        book = db.session.query(Book, Review).filter(Book.isbn == Review.rbook_isbn, Book.title.in_(b_title)).group_by(Book.title, Book.author, Book.isbn, Book.year).first()
+        '''
+        book = db.session.query(Book, round(avg(Review.rating), 2), count(Review.rating)).filter(Book.isbn == Review.rbook_isbn, Book.title.in_(b_title)).group_by(Book.title, Book.author, Book.isbn, Book.year).first()
 
-        book = Book.query.(title, author, isbn, year, round(avg(rating), 2), count(rating)).join(Reviews.filter(Book.isbn == Review.rbook_isbn)).filter(Book.title.in_(title).group_by()).all()
-        book = db.session.query(Book, Review).filter(Book.isbn == Review.rbook_isbn).filter(Book.title.in_(b_title).group_by().all()
+        '''
         book = db.execute('SELECT title, author, isbn, year, round(avg(rating), 2), count(rating) from books left join reviews on isbn = rbook_isbn WHERE title IN (:title) GROUP BY title, author, isbn, year', {
                           "title": b_title, }).fetchone()
-
+        '''
         return render_template("bookpage.html", book=book, error=error)
 
     else:
@@ -320,9 +331,12 @@ def book(b_title):
         '''
 
         """ Get book from database. """
+        book = db.session.query(Book, round(avg(Review.rating), 2), count(Review.rating)).filter(Book.isbn == Review.rbook_isbn, Book.title.in_(b_title)).group_by(Book.title, Book.author, Book.isbn, Book.year).first()
+
+        '''
         book = db.execute('SELECT title, author, isbn, year, round(avg(rating), 2), count(rating) from books left join reviews on isbn = rbook_isbn WHERE title IN (:title) GROUP BY title, author, isbn, year', {
                           "title": b_title, }).fetchone()
-        
+        '''
         b = {}
 
         for tup in book.items():
@@ -335,7 +349,7 @@ def book(b_title):
 
         b_isbn = book['isbn']
 
-        reviews = Review.query.filter_by(rbook_isbn= b_isbn).all()
+        reviews = Review.query.filter_by(Review.rbook_isbn = b_isbn).all()
         '''        
         reviews = db.execute('SELECT * FROM reviews WHERE rbook_isbn IN (:rbook_isbn)', {"rbook_isbn": b_isbn, }).fetchall()
         '''
@@ -469,9 +483,12 @@ def book_api(isbn):
         """Return details about a single book."""
         
         # Make sure book exists.
+        book = db.session.query(Book, round(avg(Review.rating), 2), count(Review.rating)).filter(Book.isbn == Review.rbook_isbn, Book.title.in_(b_title)).group_by(Book.title, Book.author, Book.isbn, Book.year).first()
+
+        '''
         book = db.execute('SELECT title, author, isbn, year, round(avg(rating), 2), count(rating) from books left join reviews on isbn = rbook_isbn where isbn IN (:isbn) group by title, author, isbn, year', {
             "isbn": isbn, }).fetchone()
-        
+        '''
         if book is None:
             return jsonify({"error": "Invalid isbn"}), 404
 
