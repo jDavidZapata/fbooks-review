@@ -96,7 +96,7 @@
             <li class="nav-item">
               <a class="nav-link" href="{{ url_for('search') }}">Search</a>
             </li>
-            {% if g.user %}
+            {% if g.user_id %}
             <li class="nav-item">
               <a class="nav-link" href="{{ url_for('create') }}">Create</a>
             <li class="nav-item">
@@ -112,9 +112,9 @@
             {% endif %}
           </ul>
           <span class="navbar-text">
-            {% if g.user %}
+            {% if g.user_id %}
             Welcome
-            {{ (g.user['name']).upper() }}
+            {{ (g.user_name).upper() }}
             !!!
             {% endif %}
             Always Be Amazing!!!
@@ -127,7 +127,7 @@
       <h1>Comic-Book-Anime</h1>
       <h2>Review App</h2>
       <p class="lead">Pick A Book</p>
-      {% if not g.user %}
+      {% if not g.user_id %}
       <p><a class="btn btn-lg btn-success" href="{{ url_for('register') }}" role="button">Sign up NOW!</a>
       </p>
       {% else %}

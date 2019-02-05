@@ -59,7 +59,7 @@
 
 {% block content2 %}
 
-{% if g.user %}
+{% if g.user_id %}
 <form action="{{ url_for('create') }}" method="POST">
     <div class="row align-items-center bg-secondary create justify-content-center">
         <div class="col-12 col-sm-6 col-lg-7">
