@@ -2,7 +2,7 @@ from flask import Flask, flash, redirect, render_template, request, session, abo
 import requests, json
 from models import *
 # from  sqlalchemy.sql.expression import func
-from sqlalchemy import func, desc, and_
+from sqlalchemy import func, desc, and_, inspect
 
 ## from flask.ext.login import login_user , logout_user , current_user , login_required
 
@@ -305,22 +305,42 @@ def book(b_title):
 
     """ Get book from database. And make sure user input is a string if query is None then error. """
     
-    '''
-    book = db.session.query(Book, func.round(func.avg(Review.rating).label('round'), 2), func.count(Review.rating).label('count')).filter(Book.isbn == Review.rbook_isbn, Book.title.in_(b_title)).group_by(Book.title, Book.author, Book.isbn, Book.year).first()
+    #book = Book.query.filter_by(title=b_title).first() 
 
-    book = Book.query.(Book.title, Book.author, Book.isbn, Book.year, func.round(func.avg(Review.rating), 2), func.count(Review.rating)).join(Reviews).filter(Book.isbn == Review.rbook_isbn, Book.title.in_(b_title)).group_by(Book.title, Book.author, Book.isbn, Book.year).first()
-    '''
+    ### book = db.session.query(Book, Review).outerjoin(Review, Book.isbn == Review.rbook_isbn).filter(Book.title == (b_title)).all()
+
+    book = db.session.query(Book.title, Book.author, Book.isbn, Book.year, func.round(func.avg(Review.rating), 2).label('round'), func.count(Review.rating).label('count')).outerjoin(Review, Book.isbn == Review.rbook_isbn).filter(Book.title == (b_title)).group_by(Book.title, Book.author, Book.isbn, Book.year).all()
+
+    #book = Book.query.options(db.joinedload(Review).joinedload(func.avg(Review.rating).label('round'), Book.isbn == Review.rbook_isbn)).filter(Book.title == (b_title)).all()
+
+    #book = Book.query.options(db.joinedload(Review, Book.isbn == Review.rbook_isbn)).filter(Book.title == (b_title)).all()
+
+
+    #book = Book.query(Book.title, Book.author, Book.isbn, Book.year, func.round(func.avg(Review.rating), 2), func.count(Review.rating)).outerjoin(Review, Book.isbn == Review.rbook_isbn).filter(Book.title == (b_title)).group_by(Book.title, Book.author, Book.isbn, Book.year).first()
+    
+    print(b_title)
+
+    # book = Book.query.filter_by(title=b_title).first()
+
+    # book = db.session.query(Book, Review).filter(Book.isbn == Review.rbook_isbn, Book.title == (b_title)).group_by(Book.title, Book.author, Book.isbn, Book.id, Book.year, Review.id).all()
+
+    print('book:{}'.format(book))
+    
+
+
+    
 
     """Check to see if User is in session."""
 
     if (not 'user_id' in session):
         g.user = None
         '''
-        book = Book.query.(Book, func.round(func.avg(Review.rating), 2), func.count(Review.rating)).join(Reviews).filter(Book.isbn == Review.rbook_isbn, Book.title.in_(b_title)).group_by(Book.title, Book.author, Book.isbn, Book.year).first()
+        book = Book.query.filter(Book, func.round(func.avg(Review.rating), 2), func.count(Review.rating)).join(Reviews).filter(Book.isbn == Review.rbook_isbn, Book.title.in_(b_title)).group_by(Book.title, Book.author, Book.isbn, Book.year).first()
+        
         book = db.session.query(Book, Review).filter(Book.isbn == Review.rbook_isbn, Book.title.in_(b_title)).group_by(Book.title, Book.author, Book.isbn, Book.year).first()
+        
+        book = db.session.query(Book.title, Book.author, Book.isbn, Book.year, func.avg(Review.rating).label('round'), func.count(Review.rating)).filter(Book.isbn == Review.rbook_isbn, Book.title.in_(b_title)).group_by(Book.title, Book.author, Book.isbn, Book.year).first()
         '''
-        book = db.session.query(Book, func.avg(Review.rating).label('round'), func.count(Review.rating)).filter(Book.isbn == Review.rbook_isbn, Book.title.in_(b_title)).group_by(Book.title, Book.author, Book.isbn, Book.year).first()
-
         '''
         book = db.execute('SELECT title, author, isbn, year, round(avg(rating), 2), count(rating) from books left join reviews on isbn = rbook_isbn WHERE title IN (:title) GROUP BY title, author, isbn, year', {
                           "title": b_title, }).fetchone()
@@ -329,6 +349,10 @@ def book(b_title):
 
     else:
         g.user = User.query.get(user_id)
+        
+
+
+
         '''
         g.user = db.execute(
             'SELECT * FROM users WHERE id IN (:id)', {"id": user_id, }
@@ -336,10 +360,13 @@ def book(b_title):
         '''
 
         """ Get book from database. """
-        book = db.session.query(Book.title, Book.author, Book.isbn, Book.year, func.avg(Review.rating).label('round'), func.count(Review.rating)).filter(Book.isbn == Review.rbook_isbn, Book.title.in_(b_title)).group_by(Book.title, Book.author, Book.isbn, Book.year).first()
-
         '''
-        book = Book.query.(Book.title, Book.author, Book.isbn, Book.year, func.round(func.avg(Review.rating), 2), func.count(Review.rating)).join(Reviews.filter(Book.isbn == Review.rbook_isbn, Book.title.in_(b_title)).group_by(Book.title, Book.author, Book.isbn, Book.year)).first()
+        book = db.session.query(Book.title, Book.author, Book.isbn, Book.year, func.avg(Review.rating).label('round'), func.count(Review.rating)).filter(Book.isbn == Review.rbook_isbn, Book.title.in_(b_title)).group_by(Book.title, Book.author, Book.isbn, Book.year).first()
+        '''
+
+        
+        '''
+        book = Book.query.filter(Book.title, Book.author, Book.isbn, Book.year, func.round(func.avg(Review.rating), 2), func.count(Review.rating)).join(Reviews.filter(Book.isbn == Review.rbook_isbn, Book.title.in_(b_title)).group_by(Book.title, Book.author, Book.isbn, Book.year)).first()
         book = db.execute('SELECT title, author, isbn, year, round(avg(rating), 2), count(rating) from books left join reviews on isbn = rbook_isbn WHERE title IN (:title) GROUP BY title, author, isbn, year', {
                           "title": b_title, }).fetchone()
         '''
@@ -347,27 +374,64 @@ def book(b_title):
 
             return render_template("search.html")
 
+        '''
+        b, c = {}, []
+        for rowproxy in book:
+            # rowproxy.items() returns an array like [(key0, value0), (key1, value1)]
+            # build up the dictionary
+            b = {**b, **{[0]: [1]}}
+            c.append(b)
 
-        b = {}
+        print(c)
+        
+        '''
 
-        for tup in book.items():
-            # book.items() returns an array like [(key0, value0), (key1, value1)]
-            # build up the dictionary           
-            b = {**b, **{tup[0]: tup[1]}}
-            
-           
-        book = b
+        '''
+        tup = None
+        d, a = {}, []
+        for rowproxy in book:
+            # rowproxy.items() returns an array like [(key0, value0), (key1, value1)]
+            for tup in rowproxy:
+                # build up the dictionary
+                d = {tup}
+            a.append(d)
 
-        b_isbn = book['isbn']
+        print(d)
 
-        reviews = Review.query.filter_by(Review.rbook_isbn == b_isbn).all()
+        '''
+
+        book = [r._asdict() for r in book]
+
+        print('book:{}'.format(book))
+
+        b_isbn = book[0]['isbn']
+
+        b_author = book[0]['author']
+
+        b_year = book[0]['year']
+
+        b_count = book[0]['count']
+
+        b_rating = book[0]['round']
+
+        print(b_isbn)
+
+        
+
+
+
+
+
+
+
+        reviews = Review.query.filter(Review.rbook_isbn == b_isbn).all()
         '''        
         reviews = db.execute('SELECT * FROM reviews WHERE rbook_isbn IN (:rbook_isbn)', {"rbook_isbn": b_isbn, }).fetchall()
         '''
         
-        print(reviews)
+        print('reviews:{}'.format(reviews))
 
-        
+        '''
         d, a = {}, []
         for rowproxy in reviews:
             # rowproxy.items() returns an array like [(key0, value0), (key1, value1)]
@@ -379,8 +443,13 @@ def book(b_title):
         print(a)
 
         reviews = a
-        
+        '''
+
+       
+
         """ Api request. """
+
+        
         res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": os.getenv("API_KEY"), "isbns": b_isbn})
         
         if res.status_code != 200:
@@ -394,18 +463,34 @@ def book(b_title):
 
         goodr_review_rating = data['books'][0]['average_rating']
 
-        """ Put values from data into book. """           
-        book['goodr_review_count'] = goodr_review_count
+        """ Put values from data into book. """     
 
-        book['goodr_review_rating'] = goodr_review_rating
+        goodreads = {}
 
-   
+
+
+        goodreads['goodr_review_count'] = goodr_review_count
+
+        goodreads['goodr_review_rating'] = goodr_review_rating
+
+
+        print('goodreads:{}'.format(goodreads))
+
+
+        book[0]['goodr_review_count'] = goodr_review_count
+
+        book[0]['goodr_review_rating'] = goodr_review_rating
+
+
         session['b_title'] = b_title
-        session['book'] = book
-        session['reviews'] = reviews   
+  
+        # session['book'] = book
+        # session['reviews'] = reviews   
 
         print(book)
-                
+
+        
+                  
         print('this') 
 
         return render_template("bookpage.html", book=book, error=error, reviews=reviews)
@@ -429,8 +514,16 @@ def create():
     else:
 
         user_id = session.get('user_id')
-        book = session.get('book')
+        #book = session.get('book')
+        
         b_title = session.get('b_title')
+
+        book = db.session.query(Book.title, Book.author, Book.isbn, Book.year, func.round(func.avg(Review.rating), 2).label('round'), func.count(Review.rating).label('count')).outerjoin(Review, Book.isbn == Review.rbook_isbn).filter(Book.title == (b_title)).group_by(Book.title, Book.author, Book.isbn, Book.year).all()
+
+        #book = Book.query.options(db.joinedload(Review, Book.isbn == Review.rbook_isbn)).filter(Book.title == (b_title)).all()
+
+
+        print(book)
 
         '''   
         # book = db.execute('SELECT * FROM books WHERE title = :title', {"title": b_title,}).fetchone()
@@ -451,14 +544,19 @@ def create():
             rating = request.form['radio']
             review_text = request.form['reviewtext']
             review_user_id = user_id
-            rbook_isbn = book['isbn']
+            #rbook_isbn = book[0]['isbn']
+            rbook_isbn = book[0].isbn
 
-            
+            #book = db.session.query(Book.title, Book.author, Book.isbn, Book.year, func.round(func.avg(Review.rating), 2).label('round'), func.count(Review.rating).label('count')).outerjoin(Review, Book.isbn == Review.rbook_isbn).filter(Book.title == (b_title)).group_by(Book.title, Book.author, Book.isbn, Book.year).all()
+
             """ Check for user id in the reviews for that book. """
 
             if error is None:
 
-                user_review = Review.query.filter(and_(Review.review_user_id.in_(review_user_id), Review.rbook_isbn.in_(rbook_isbn))).all()
+                user_review = Review.query.filter(and_(Review.review_user_id == (review_user_id), Review.rbook_isbn == (rbook_isbn))).first()
+                
+
+                print('user_review:{}'.format(user_review))
                 '''
                 user_review = db.execute("SELECT * FROM reviews WHERE review_user_id IN (:review_user_id) AND rbook_isbn IN (:rbook_isbn)", {
                                          "review_user_id": review_user_id, "rbook_isbn": rbook_isbn}).fetchone()
@@ -470,7 +568,13 @@ def create():
                 else:
                     """ If not reviewed by user, add review. """
 
-                    book.add_review(review_text, rating, rbook_isbn, review_user_id)
+                    # book.add_review(review_text, rating, rbook_isbn, review_user_id)
+
+                    review = Review(review_text=review_text, rating=rating, rbook_isbn=rbook_isbn, review_user_id=review_user_id)
+                    db.session.add(review)
+                    db.session.commit()
+
+
                     '''
                     db.execute("INSERT INTO reviews (rating, review_text, review_user_id, rbook_isbn) VALUES (:rating, :review_text, :review_user_id, :rbook_isbn)",
                                {"rating": rating, "review_text": review_text, "review_user_id": review_user_id, "rbook_isbn": rbook_isbn})
@@ -478,13 +582,19 @@ def create():
                     '''
                     success = 'Great Review!!!'
 
-                    session['book'] = book
+                    #session['book'] = book
+
+                    book = db.session.query(Book.title, Book.author, Book.isbn, Book.year, func.round(func.avg(Review.rating), 2).label('round'), func.count(Review.rating).label('count')).outerjoin(Review, Book.isbn == Review.rbook_isbn).filter(Book.title == (b_title)).group_by(Book.title, Book.author, Book.isbn, Book.year).all()
+
+                    b_isbn = book[0].isbn
+
+                    reviews = Review.query.filter(Review.rbook_isbn == b_isbn).all()
 
 
                     #book = db.execute('SELECT title, author, isbn, year, round(avg(rating), 2), count(rating) from books left join reviews on isbn = rbook_isbn where title IN (:title) group by title, author, isbn, year', {
                                       #"title": b_title, }).fetchone()
 
-                    return render_template("bookpage.html", error=error, book=book, success=success)
+                    return render_template("bookpage.html", error=error, book=book, reviews=reviews, success=success)
 
         return render_template("bookpage.html", error=error, book=book)
 
