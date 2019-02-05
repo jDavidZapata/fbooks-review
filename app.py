@@ -49,8 +49,7 @@ def index():
         return render_template("index.html", books=books, error=error, book=book)
     
     else:
-        g.user = g.user
-        #g.user = User.query.get(user_id)
+        g.user = User.query.get(user_id)
 
 
         return render_template("index.html", books=books, error=error, book=book)
@@ -67,16 +66,16 @@ def register():
     error = None
     success = None
 
+    books = Book.query.order_by(func.random()).limit(9).all()
+
     """ Check if the user is in session. """
     user_id = session.get('user_id')
 
     if ('user_id' in session):
-        g.user = g.user
-
-        #g.user = User.query.get(user_id)
+        g.user = User.query.get(user_id)
 
         # change to redirect to current page
-        return render_template("index.html")
+        return redirect(url_for('index'))
 
     if request.method == 'POST':
 
@@ -125,14 +124,16 @@ def register():
 
             session.clear()
             session['user_id'] = user.id
+
             g.user = user
 
             success = 'Thank You, For Signing Up.'
 
+            
             # Change to redirect to curent page
-            return render_template('index', success=success)
+            return render_template('index.html', success=success, books=books)
 
-    return render_template('auth/register.html', book=book, error=error, success=success)
+    return render_template('auth/register.html', error=error, books=books)
 
 
 @app.route('/login', methods=('GET', 'POST'))
@@ -142,12 +143,15 @@ def login():
     error = None
     success = None
 
+    books = Book.query.order_by(func.random()).limit(9).all()
+
     user_id = session.get('user_id')
+
+
 
     """ If the users id is in the session, then user already loged in. """
     if ('user_id' in session):
-        g.user = g.user
-        #g.user = User.query.get(user_id)
+        g.user = User.query.get(user_id)
 
         '''
         g.user = db.execute(
@@ -156,7 +160,7 @@ def login():
         '''
 
         # change to redirect to current page
-        return render_template("index.html", error=error, success=success)
+        return redirect(url_for('index'))
 
     if request.method == 'POST':
         """ Get values from form. """
@@ -194,9 +198,9 @@ def login():
 
             success = 'Your Now Signed In.'
 
-            return render_template('index', success=success)
+            return render_template('index.html', success=success, error=error, books=books)
 
-    return render_template('auth/login.html', book=book, error=error, success=success)
+    return render_template('auth/login.html', books=books, error=error)
 
 
 @app.route('/logout')
@@ -212,7 +216,8 @@ def logout():
 
     success = 'Your Now Loged Out.'
 
-    return render_template('index', success=success)
+    return redirect(url_for('index'))
+    
 
 
 @app.route('/search', methods=['GET', 'POST'])
@@ -331,10 +336,12 @@ def book(b_title):
     # book = db.session.query(Book, Review).filter(Book.isbn == Review.rbook_isbn, Book.title == (b_title)).group_by(Book.title, Book.author, Book.isbn, Book.id, Book.year, Review.id).all()
 
     print('book:{}'.format(book))
-    
 
-
-    
+    if book == []:
+        error = 'No Such Book.'
+    if book is None:
+        error = 'No Such Book.'
+      
 
     """Check to see if User is in session."""
 
@@ -376,9 +383,6 @@ def book(b_title):
         book = db.execute('SELECT title, author, isbn, year, round(avg(rating), 2), count(rating) from books left join reviews on isbn = rbook_isbn WHERE title IN (:title) GROUP BY title, author, isbn, year', {
                           "title": b_title, }).fetchone()
         '''
-        if book is None:
-
-            return render_template("search.html")
 
         '''
         b, c = {}, []
@@ -423,12 +427,6 @@ def book(b_title):
         print(b_isbn)
 
         
-
-
-
-
-
-
 
         reviews = Review.query.filter(Review.rbook_isbn == b_isbn).all()
         '''        
