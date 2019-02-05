@@ -1,7 +1,6 @@
 from flask import Flask, flash, redirect, render_template, request, session, abort, redirect, url_for, g, jsonify
 import requests, json
 from models import *
-# from  sqlalchemy.sql.expression import func
 from sqlalchemy import func, desc, and_, inspect
 
 ## from flask.ext.login import login_user , logout_user , current_user , login_required
@@ -15,7 +14,9 @@ if not os.getenv("DATABASE_URL"):
 # Set up database
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["SQLALCHEMY_ECHO"] = True
 db.init_app(app)
+
 
 
 # Configure session to use filesystem
@@ -24,6 +25,7 @@ app.config["SESSION_TYPE"] = "filesystem"
 
 app.secret_key = b'_3#y2L"F4Q8z\n\xec]/'
 
+print(app.config)
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -47,7 +49,9 @@ def index():
         return render_template("index.html", books=books, error=error, book=book)
     
     else:
-        g.user = User.query.get(user_id)
+        g.user = g.user
+        #g.user = User.query.get(user_id)
+
 
         return render_template("index.html", books=books, error=error, book=book)
 
@@ -67,8 +71,9 @@ def register():
     user_id = session.get('user_id')
 
     if ('user_id' in session):
+        g.user = g.user
 
-        g.user = User.query.get(user_id)
+        #g.user = User.query.get(user_id)
 
         # change to redirect to current page
         return render_template("index.html")
@@ -122,10 +127,10 @@ def register():
             session['user_id'] = user.id
             g.user = user
 
-            success = 'Thank You For Signing Up.'
+            success = 'Thank You, For Signing Up.'
 
             # Change to redirect to curent page
-            return redirect(url_for('index', success=success))
+            return render_template('index', success=success)
 
     return render_template('auth/register.html', book=book, error=error, success=success)
 
@@ -141,7 +146,8 @@ def login():
 
     """ If the users id is in the session, then user already loged in. """
     if ('user_id' in session):
-        g.user = User.query.get(user_id)
+        g.user = g.user
+        #g.user = User.query.get(user_id)
 
         '''
         g.user = db.execute(
@@ -188,7 +194,7 @@ def login():
 
             success = 'Your Now Signed In.'
 
-            return redirect(url_for('index', success=success))
+            return render_template('index', success=success)
 
     return render_template('auth/login.html', book=book, error=error, success=success)
 
@@ -206,7 +212,7 @@ def logout():
 
     success = 'Your Now Loged Out.'
 
-    return redirect(url_for('index', success=success))
+    return render_template('index', success=success)
 
 
 @app.route('/search', methods=['GET', 'POST'])
