@@ -35,20 +35,13 @@ def index():
 
     """ Get 9 random books. """
     books = Book.query.order_by(func.random()).limit(9).all()
-    '''
-    books = db.execute(
-        'SELECT * FROM (SELECT * FROM books ORDER BY random() LIMIT 9) TB ORDER BY title ASC').fetchall()
-    '''
-
+    
     """Check to see if User is in session."""
     user_id = session.get('user_id')
     user_name = session.get('user_name')
 
     if (not 'user_id' in session):
         
-        g.user_id = None
-        g.user_name = None
-
         return render_template("index.html", books=books, error=error)
     
     else:
@@ -94,11 +87,6 @@ def register():
         """ Make sure email is not already register. """
         user = User.query.filter_by(email=email).first()
 
-        '''
-        user = db.execute("SELECT * FROM users WHERE email IN (:email)",
-                          {"email": email}).fetchone()
-        '''
-
         if user is not None:
             error = 'User with email {0} is already registered.'.format(email)
 
@@ -108,14 +96,6 @@ def register():
             user = User(name=name, password=password, email=email)
             db.session.add(user)
             db.session.commit()
-
-            '''db.execute("INSERT INTO users (name, password, email) VALUES (:name, :password, :email)",
-                       {"name": name, "password": password, "email": email})
-            db.commit()
-
-            user = db.execute("SELECT * FROM users WHERE email IN (:email)", {
-                              "email": email}).fetchone()
-            '''
 
             """Store the user id in a new session and return to the index"""
 
@@ -151,11 +131,6 @@ def login():
         g.user_id = user_id
         g.user_name = user_name
         
-        '''
-        g.user = db.execute(
-            'SELECT * FROM users WHERE id IN (:id)', {"id": user_id, }
-        ).fetchone()
-        '''
         return redirect(url_for('index'))
 
     if request.method == 'POST':
@@ -167,16 +142,12 @@ def login():
         """ Get user from database. """
         user = User.query.filter(and_(User.email == email, User.password == (password))).first() 
 
-        '''user = db.execute("SELECT * FROM users WHERE email IN (:email) AND password IN (:password)",
-                          {"email": email, "password": password}).fetchone()
-        '''
-
         if user is None:
             error = 'Incorrect Email or Password.'
 
         if error is None:
-
             """ Store the user id in a new session and return to the index."""
+
             session.clear()
             session['user_id'] = user.id
             session['user_name'] = user.name
@@ -184,13 +155,6 @@ def login():
             g.user_id = user.id
             g.user_name = user.name
 
-            print(g.user_name)
-            
-            '''g.user = db.execute(
-                'SELECT * FROM users WHERE id IN (:id)', {"id": user_id, }
-            ).fetchone()
-            db.close()
-            '''
             success = 'Your Now Signed In.'
 
             return render_template('index.html', success=success, error=error, books=books)
@@ -206,9 +170,6 @@ def logout():
 
     """Clear the current session."""
     session.clear()
-
-    g.user_id = None
-    g.user_name = None
     
     success = 'Your Now Loged Out.'
 
@@ -227,19 +188,10 @@ def search():
     user_id = session.get('user_id')
     user_name = session.get('user_name')
     
-    if (not 'user_id' in session):
-        g.user_id = None
-        g.user_name = None
-        
-    else:
+    if ('user_id' in session):
+                        
         g.user_id = user_id
         g.user_name = user_name
-        
-        '''
-        g.user = db.execute(
-            'SELECT * FROM users WHERE id IN (:id)', {"id": user_id, }
-        ).fetchone()
-        '''
 
     if request.method == 'POST':
 
@@ -249,10 +201,7 @@ def search():
             b_title = request.form['b_title']
             title = '%{}%'.format(b_title)
             books = Book.query.filter(Book.title.ilike(title)).order_by(Book.title.asc()).all()
-            '''
-            books = db.execute(
-                "SELECT * FROM books WHERE title ILIKE ('%' || :title || '%') ORDER BY title ASC", {"title": b_title, }).fetchall()
-            '''
+            
             if not books:
                 error = 'No Such Title'
             return render_template("search.html", books=books, error=error, book=book)
@@ -262,10 +211,7 @@ def search():
             b_author = request.form['b_author']
             author = '%{}%'.format(b_author)
             books = Book.query.filter(Book.author.ilike(author)).order_by(Book.title.asc()).all()
-            '''
-            books = db.execute(
-                "SELECT * FROM books WHERE author ILIKE ('%' || :author || '%') ORDER BY title ASC", {"author": b_author, }).fetchall()
-            '''
+            
             if not books:
                 error = 'No Such Author'
             return render_template("search.html", books=books, error=error, book=book)
@@ -275,10 +221,7 @@ def search():
             b_isbn = request.form['b_isbn']
             isbn = '%{}%'.format(b_isbn)
             books = Book.query.filter(Book.isbn.ilike(isbn)).order_by(Book.title.asc()).all()
-            '''
-            books = db.execute(
-                "SELECT * FROM books WHERE isbn ILIKE ('%' || :isbn || '%') ORDER BY title ASC", {"isbn": b_isbn, }).fetchall()
-            '''
+            
             if not books:
                 error = 'No Such isbn #'
             return render_template("search.html", books=books, error=error, book=book)
@@ -286,23 +229,13 @@ def search():
             """ Else get 9 random books. """
         else:
             error = 'Random Books'
-            #  books = Book.query.order_by(func.random().limit(9)).all()
+            
             books = Book.query.order_by(func.random()).limit(9).all()
-            '''
-            books = db.execute(
-                'SELECT * FROM (SELECT * FROM books ORDER BY random() LIMIT 9) TB ORDER BY title ASC').fetchall()
-            '''
+            
             return render_template("search.html", books=books, error=error)
-
-    # book = db.execute('SELECT * FROM books WHERE title = :title', {"title": b_title,}).fetchone()
-    # book = Book.query.filter_by(title = b_title)
-
-    # books = Book.query.order_by(func.random().limit(9)).all()
+    
     books = Book.query.order_by(func.random()).limit(9).all()
-    '''
-    books = db.execute(
-        'SELECT * FROM (SELECT * FROM books ORDER BY random() LIMIT 9) TB ORDER BY title ASC').fetchall()
-    '''
+    
     return render_template("search.html", books=books, error=error)
 
 
@@ -316,22 +249,7 @@ def book(b_title):
     
     book = db.session.query(Book.title, Book.author, Book.isbn, Book.year, func.round(func.avg(Review.rating), 2).label('round'), func.count(Review.rating).label('count')).outerjoin(Review, Book.isbn == Review.rbook_isbn).filter(Book.title == (b_title)).group_by(Book.title, Book.author, Book.isbn, Book.year).all()
 
-    #book = Book.query.filter_by(title=b_title).first() 
-
-    ### book = db.session.query(Book, Review).outerjoin(Review, Book.isbn == Review.rbook_isbn).filter(Book.title == (b_title)).all()
-
-    #book = Book.query.options(db.joinedload(Review).joinedload(func.avg(Review.rating).label('round'), Book.isbn == Review.rbook_isbn)).filter(Book.title == (b_title)).all()
-
-    #book = Book.query.options(db.joinedload(Review, Book.isbn == Review.rbook_isbn)).filter(Book.title == (b_title)).all()
-
-    #book = Book.query(Book.title, Book.author, Book.isbn, Book.year, func.round(func.avg(Review.rating), 2), func.count(Review.rating)).outerjoin(Review, Book.isbn == Review.rbook_isbn).filter(Book.title == (b_title)).group_by(Book.title, Book.author, Book.isbn, Book.year).first()
-       
-    # book = Book.query.filter_by(title=b_title).first()
-
-    # book = db.session.query(Book, Review).filter(Book.isbn == Review.rbook_isbn, Book.title == (b_title)).group_by(Book.title, Book.author, Book.isbn, Book.id, Book.year, Review.id).all()
-
     print('book:{}'.format(book))
-
        
     """Check to see if User is in session."""
 
@@ -339,78 +257,23 @@ def book(b_title):
     user_name = session.get('user_name')
    
     if (not 'user_id' in session):
-        g.user_id = None
-        g.user_name = None
         
-        if book == [] or book is None:
+        if not book:
             # If there is no book.
             error = 'No Such Book.'
-        '''
-        book = Book.query.filter(Book, func.round(func.avg(Review.rating), 2), func.count(Review.rating)).join(Reviews).filter(Book.isbn == Review.rbook_isbn, Book.title.in_(b_title)).group_by(Book.title, Book.author, Book.isbn, Book.year).first()
-        
-        book = db.session.query(Book, Review).filter(Book.isbn == Review.rbook_isbn, Book.title.in_(b_title)).group_by(Book.title, Book.author, Book.isbn, Book.year).first()
-        
-        book = db.session.query(Book.title, Book.author, Book.isbn, Book.year, func.avg(Review.rating).label('round'), func.count(Review.rating)).filter(Book.isbn == Review.rbook_isbn, Book.title.in_(b_title)).group_by(Book.title, Book.author, Book.isbn, Book.year).first()
-        '''
-        '''
-        book = db.execute('SELECT title, author, isbn, year, round(avg(rating), 2), count(rating) from books left join reviews on isbn = rbook_isbn WHERE title IN (:title) GROUP BY title, author, isbn, year', {
-                          "title": b_title, }).fetchone()
-        '''
+       
         return render_template("bookpage.html", book=book, error=error)
 
     else:
         g.user_id = user_id
         g.user_name = user_name
         
-        if book == [] or book is None:
+        if not book:
             # If there is no book.
             error = 'No Such Book.'
 
             return render_template("bookpage.html", book=book, error=error)
-        
-        '''
-        g.user = db.execute(
-            'SELECT * FROM users WHERE id IN (:id)', {"id": user_id, }
-        ).fetchone()
-        '''
-
-        '''
-        book = db.session.query(Book.title, Book.author, Book.isbn, Book.year, func.avg(Review.rating).label('round'), func.count(Review.rating)).filter(Book.isbn == Review.rbook_isbn, Book.title.in_(b_title)).group_by(Book.title, Book.author, Book.isbn, Book.year).first()
-        '''
-
-        
-        '''
-        book = Book.query.filter(Book.title, Book.author, Book.isbn, Book.year, func.round(func.avg(Review.rating), 2), func.count(Review.rating)).join(Reviews.filter(Book.isbn == Review.rbook_isbn, Book.title.in_(b_title)).group_by(Book.title, Book.author, Book.isbn, Book.year)).first()
-        book = db.execute('SELECT title, author, isbn, year, round(avg(rating), 2), count(rating) from books left join reviews on isbn = rbook_isbn WHERE title IN (:title) GROUP BY title, author, isbn, year', {
-                          "title": b_title, }).fetchone()
-        '''
-
-        '''
-        b, c = {}, []
-        for rowproxy in book:
-            # rowproxy.items() returns an array like [(key0, value0), (key1, value1)]
-            # build up the dictionary
-            b = {**b, **{[0]: [1]}}
-            c.append(b)
-
-        print(c)
-        
-        '''
-
-        '''
-        tup = None
-        d, a = {}, []
-        for rowproxy in book:
-            # rowproxy.items() returns an array like [(key0, value0), (key1, value1)]
-            for tup in rowproxy:
-                # build up the dictionary
-                d = {tup}
-            a.append(d)
-
-        print(d)
-
-        '''
-        
+       
         book = [r._asdict() for r in book]
 
         print('book:{}'.format(book))
@@ -422,24 +285,8 @@ def book(b_title):
         b_rating = book[0]['round']
 
         reviews = Review.query.filter(Review.rbook_isbn == b_isbn).all()
-        '''        
-        reviews = db.execute('SELECT * FROM reviews WHERE rbook_isbn IN (:rbook_isbn)', {"rbook_isbn": b_isbn, }).fetchall()
-        '''
+        
         print('reviews:{}'.format(reviews))
-
-        '''
-        d, a = {}, []
-        for rowproxy in reviews:
-            # rowproxy.items() returns an array like [(key0, value0), (key1, value1)]
-            for tup in rowproxy.items():
-                # build up the dictionary
-                d = {**d, **{tup[0]: tup[1]}}
-            a.append(d)
-
-        print(a)
-
-        reviews = a
-        '''    
 
         """ Api request. """
  
@@ -449,6 +296,8 @@ def book(b_title):
             raise Exception("ERROR: API request unsuccessful.")
        
         data = res.json()
+
+        print(data)
 
         """ Take values out of data from Api request. """
         goodr_review_count = data['books'][0]['work_ratings_count']
@@ -462,9 +311,6 @@ def book(b_title):
 
         session['b_title'] = b_title
   
-        print(book)    
-        print('this') 
-
         return render_template("bookpage.html", book=book, error=error, reviews=reviews)
 
 
@@ -474,18 +320,13 @@ def create():
 
     error = None
     success = None
-    book = None
-
+    
     """Check to see if User is in session."""
 
     if (not 'user_id' in session):
-        g.user_id = None
-        g.user_name = None
         
-        books = Book.query.order_by(func.random()).limit(9).all()
-
-        return render_template("search.html", error=error, books=books)
-
+        return redirect(url_for('search'))
+       
     else:
 
         user_id = session.get('user_id')
@@ -496,13 +337,7 @@ def create():
         g.user_id = user_id
         g.user_name = user_name
                 
-        #book = g.book
-        #book = Book.query.filter_by(title=b_title).first()
-        #book = Book.query.options(db.joinedload(Review, Book.isbn == Review.rbook_isbn)).filter(Book.title == (b_title)).all()
-        
         book = db.session.query(Book.title, Book.author, Book.isbn, Book.year, func.round(func.avg(Review.rating), 2).label('round'), func.count(Review.rating).label('count')).outerjoin(Review, Book.isbn == Review.rbook_isbn).filter(Book.title == (b_title)).group_by(Book.title, Book.author, Book.isbn, Book.year).all()
-
-        print(book)
 
         if not book:
             error = 'Pick A Book'
@@ -510,19 +345,6 @@ def create():
 
             return render_template("search.html", error=error, books=books)
 
-        '''   
-        # book = db.execute('SELECT * FROM books WHERE title = :title', {"title": b_title,}).fetchone()
-        
-        book = db.session.query(Book, func.round(func.avg(Review.rating), 2), func.count(Review.rating)).filter(Book.isbn == Review.rbook_isbn, Book.title.in_(b_title)).group_by(Book.title, Book.author, Book.isbn, Book.year).first()
-
-        book = db.execute('SELECT title, author, isbn, year, round(avg(rating), 2), count(rating), review_text from books left join reviews on isbn = rbook_isbn where title IN (:title) group by title, author, isbn, year', {
-                          "title": b_title, }).fetchone()
-        '''
-        
-        '''
-        g.user = db.execute(
-            'SELECT * FROM users WHERE id IN (:id)', {"id": user_id, }).fetchone()
-        '''
         if request.method == 'POST':
             """ Get values from form. """
 
@@ -531,20 +353,12 @@ def create():
             review_user_id = user_id            
             rbook_isbn = book[0].isbn
 
-            #rbook_isbn = book[0]['isbn']
-            #book = db.session.query(Book.title, Book.author, Book.isbn, Book.year, func.round(func.avg(Review.rating), 2).label('round'), func.count(Review.rating).label('count')).outerjoin(Review, Book.isbn == Review.rbook_isbn).filter(Book.title == (b_title)).group_by(Book.title, Book.author, Book.isbn, Book.year).all()
-
             """ Check for user id in the reviews for that book. """
 
             if error is None:
 
                 user_review = Review.query.filter(and_(Review.review_user_id == (review_user_id), Review.rbook_isbn == (rbook_isbn))).first()
-                
-                print('user_review:{}'.format(user_review))
-                '''
-                user_review = db.execute("SELECT * FROM reviews WHERE review_user_id IN (:review_user_id) AND rbook_isbn IN (:rbook_isbn)", {
-                                         "review_user_id": review_user_id, "rbook_isbn": rbook_isbn}).fetchone()
-                '''
+               
                 if user_review is not None:
 
                     error = 'You have already Reviewed this Book.'
@@ -558,20 +372,11 @@ def create():
                     db.session.add(review)
                     db.session.commit()
 
-
-                    '''
-                    db.execute("INSERT INTO reviews (rating, review_text, review_user_id, rbook_isbn) VALUES (:rating, :review_text, :review_user_id, :rbook_isbn)",
-                               {"rating": rating, "review_text": review_text, "review_user_id": review_user_id, "rbook_isbn": rbook_isbn})
-                    db.commit()
-                    '''
                     success = 'Great Review!!!'
                     
                     book = db.session.query(Book.title, Book.author, Book.isbn, Book.year, func.round(func.avg(Review.rating), 2).label('round'), func.count(Review.rating).label('count')).outerjoin(Review, Book.isbn == Review.rbook_isbn).filter(Book.title == (b_title)).group_by(Book.title, Book.author, Book.isbn, Book.year).all()
 
                     reviews = Review.query.filter(Review.rbook_isbn == rbook_isbn).all()
-
-                    #book = db.execute('SELECT title, author, isbn, year, round(avg(rating), 2), count(rating) from books left join reviews on isbn = rbook_isbn where title IN (:title) group by title, author, isbn, year', {
-                                      #"title": b_title, }).fetchone()
 
                     return render_template("bookpage.html", error=error, book=book, reviews=reviews, success=success)
 
@@ -588,10 +393,6 @@ def book_api(isbn):
         # Make sure book exists.
         book = db.session.query(Book.title, Book.author, Book.isbn, Book.year, func.round(func.avg(Review.rating), 2).label('round'), func.count(Review.rating).label('count')).outerjoin(Review, Book.isbn == Review.rbook_isbn).filter(Book.isbn == (isbn)).group_by(Book.title, Book.author, Book.isbn, Book.year).all()
 
-        '''
-        book = db.execute('SELECT title, author, isbn, year, round(avg(rating), 2), count(rating) from books left join reviews on isbn = rbook_isbn where isbn IN (:isbn) group by title, author, isbn, year', {
-            "isbn": isbn, }).fetchone()
-        '''
         if not book:
             return jsonify({"error": "Invalid isbn"}), 404
 
@@ -614,16 +415,12 @@ def my_books():
 
     error = None
     success = None
-    book = None
-    books = None
-
+    
     """Check to see if User is in session."""
 
     if (not 'user_id' in session):
-        g.user_id = None
-        g.user_name = None
-        
-        return render_template("index.html", error=error, book=book, books=books)
+               
+        return redirect(url_for('index'))
 
     else:
 
@@ -637,12 +434,7 @@ def my_books():
 
         g.user_name = user_name
 
-        
-        '''
-        g.user = db.execute(
-            'SELECT * FROM users WHERE id IN (:id)', {"id": user_id, }).fetchone()
-        '''
-        return render_template("my_books.html", error=error, book=book, success=success)
+        return render_template("my_books.html", error=error, success=success)
 
 
 '''
