@@ -289,7 +289,7 @@ def book(b_title):
         print('reviews:{}'.format(reviews))
 
         """ Api request. """
- 
+    
         res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": os.getenv("API_KEY"), "isbns": b_isbn})
         
         if res.status_code != 200:
@@ -434,18 +434,11 @@ def my_books():
 
         g.user_name = user_name
 
+        """  display a list of my books.  
+            also add link button 'to add a book' to my books.
+            add link to bookspage. """
+
         return render_template("my_books.html", error=error, success=success)
-
-
-'''
-    # Execute query to get the review text from each review
-    reviews= book.review_text
-    
-    text = []
-
-    for review in reviews:
-        text.append(review.review_text)
-'''
 
 
 if __name__ == "__main__":
