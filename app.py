@@ -239,7 +239,7 @@ def search():
     return render_template("search.html", books=books, error=error)
 
 
-@app.route('/book/<string:b_title>')
+@app.route('/book/<string:b_title>', methods=['GET', 'POST'])
 def book(b_title):
     """ Results for book. """
 
