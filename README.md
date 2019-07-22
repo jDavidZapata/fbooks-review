@@ -1,2 +1,2 @@
-# fcomic-book-anime - Book Review Application
+# fbook-review - Book Review Application
 Review Project
