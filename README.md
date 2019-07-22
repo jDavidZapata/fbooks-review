@@ -1,2 +1,2 @@
-# fbook-review - Book Review Application
-Review Project
+# fbooks-review - Book Review App
+Books Review Project
